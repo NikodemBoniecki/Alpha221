@@ -2,8 +2,8 @@
 Zobowiązanie z poprzedniego sprintu: brak, to pierwszy raport.
 
 [Kacper Nowaczyk]
-Zrobiłem/zrobiłam:
-W następnym tygodniu zrobię:
+Zrobiłem: Przygotowałem z pomocą ChatGPT szkielet programu w Pythonie: wczytywanie cen z CSV, algorytm genetyczny oraz porównanie z Markowitzem i portfelem 1/N. Uruchomiłem program na danych syntetycznych.
+W następnym tygodniu zrobię: Doprecyzuję działanie selekcji, krzyżowania i mutacji oraz przygotuję algorytm do porównań na wybranym zbiorze danych.
 
 [Adam Remfeld]
 Zrobiłem/zrobiłam:
@@ -14,4 +14,4 @@ Zrobiłem/zrobiłam: Uzupełniłem kartę tematu według uwag prowadzącego, pop
 W następnym tygodniu zrobię: Przygotuję instrukcję uruchomienia i dokumentację do szkieletu projektu oraz opiszę ewaluację względem Markowitza i 1/N.
 
 Blokuje nas: trzeba potwierdzić licencję na trwałe przechowywanie danych i benchmark AI albo wybrać alternatywne źródło.
-Zobowiązanie zespołu na następny sprint: ustalić konkretne źródło danych, tickery i zakres dat oraz przygotować uruchamialny szkielet projektu.
+Zobowiązanie zespołu na następny sprint: ustalić źródło danych z odpowiednią licencją, tickery i zakres dat oraz przygotować plik CSV do pierwszej ewaluacji.
