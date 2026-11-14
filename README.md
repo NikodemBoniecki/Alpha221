@@ -6,19 +6,28 @@ AI course project at Collegium Da Vinci, Computer Science, group L2 / L3, academ
 
 ## What it does
 
-We plan to build a tool that helps individual investors divide money among selected stocks. It will use historical daily prices and a risk limit to suggest portfolio weights, then show the portfolio's estimated return and risk. We will start with companies from AI, game development, and semiconductor sectors.
+The program helps compare ways to divide money among selected stocks. It reads historical daily prices and a risk limit, then suggests portfolio weights and estimates return and risk. It can use a local CSV file or synthetic demo prices. The market dataset has not been selected yet.
 
 ## AI technique
 
-We chose a genetic algorithm and will implement its main parts ourselves. It can search many possible portfolio weights while taking the user's risk limit into account. We will compare its results with a Markowitz optimizer and a simple equal-weight portfolio.
+The program uses a genetic algorithm to search possible portfolio weights under a risk limit. It compares the result with a Markowitz optimizer and a simple equal-weight portfolio. The current Python skeleton has the main algorithm and both baselines.
 
 ## Results
 
-We have not run the experiments yet because the implementation has not started. Our initial target is for every returned portfolio to meet the risk limit and for median return to reach at least 95% of the Markowitz result across five test cases.
+We have not evaluated the algorithm on licensed market data yet. Our target is for every returned portfolio to meet the risk limit and for median return to reach at least 95% of the Markowitz result across five test cases. The built-in synthetic demo is for trying the program, not for reporting project results.
 
 ## How to run
 
-There is no runnable code in the repository yet. We will add the Python version, dependencies, data setup, run command, and output location when we add the project skeleton. Tiingo EOD is only a possible data source: Starter and Trial plans do not allow persistent data storage, and our planned AI comparison requires an Enterprise license. We will secure that license or choose a suitably licensed dataset before downloading data. See [our Tiingo research](docs/tiingo-data-notes.md).
+Requirements: Python 3.10 or newer.
+
+```bash
+git clone https://github.com/NikodemBoniecki/Alpha221.git
+cd Alpha221
+python -m pip install -r requirements.txt
+python -m alpha221
+```
+
+The default command generates synthetic prices and writes a comparison to `results/comparison.csv`. To use a CSV file, run `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. The CSV must have a `date` column followed by one adjusted closing price column per ticker. Tiingo EOD remains a possible source, but its current terms require an Enterprise license for our AI comparison. We will use Tiingo only after securing the required license, or choose another suitably licensed dataset. See [our Tiingo research](docs/tiingo-data-notes.md).
 
 ## Team
 

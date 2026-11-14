@@ -3,7 +3,7 @@
 **Grupa:** L2 / L3 | **Zespół:** Z4 | **Repozytorium:** https://github.com/NikodemBoniecki/Alpha221
 Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
 
-Projekt jest na etapie planowania. Nie napisaliśmy jeszcze kodu, nie pobraliśmy danych i nie mamy wyników. Parametry i próg opisane niżej są naszymi założeniami na początek pracy.
+Mamy już uruchamialny szkielet programu. Na razie działa na danych syntetycznych albo na pliku CSV przygotowanym lokalnie. Nie wybraliśmy jeszcze rynkowego zbioru danych i nie mamy wyników eksperymentów.
 
 ## 1. Problem *(rubryka A)*
 
@@ -25,7 +25,7 @@ Przed pobraniem musimy rozwiązać kwestię licencji. Aktualne warunki Tiingo ni
 
 ### Jak będzie działał program
 
-1. Wczytamy ceny z lokalnego pliku albo, jeśli licencja na to pozwoli, pobierzemy je z Tiingo.
+1. Wczytamy ceny z lokalnego pliku CSV. Domyślnie program tworzy przykładowe dane syntetyczne.
 2. Sprawdzimy dane, uporządkujemy daty i obliczymy dzienne stopy zwrotu.
 3. Wyliczymy średnie zwroty i macierz kowariancji.
 4. Utworzymy populację portfeli. Każdy portfel będzie miał nieujemne wagi o sumie równej 1.
@@ -48,7 +48,7 @@ Do pierwszych prób przyjmiemy populację 100 osobników, maksymalnie 200 pokole
 
 ## 5. Ewaluacja *(B · 8 pkt)*
 
-Nie mamy jeszcze wyników, bo nie zaczęliśmy implementacji i nie wybraliśmy danych. Nasz cel to zwracać tylko portfele spełniające limit ryzyka oraz osiągnąć medianę zwrotu równą co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
+Nie mamy jeszcze wyników na danych rynkowych. Program można uruchomić na danych syntetycznych, ale służą one tylko do sprawdzenia działania i nie będą traktowane jako wynik projektu. Nasz cel to zwracać tylko portfele spełniające limit ryzyka oraz osiągnąć medianę zwrotu równą co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
 
 | Przypadek | Punkt odniesienia | Nasze rozwiązanie |
 |---|---|---|
@@ -58,7 +58,7 @@ Po eksperymentach wpiszemy tu wyniki i krótki wniosek. Na razie nie wiemy, czy 
 
 ## 6. Wymagania niefunkcjonalne *(A · 5 pkt)*
 
-Program ma działać na CPU. Chcemy, żeby jeden test dla koszyka od 50 do 100 spółek trwał krócej niż 60 sekund, ale nie zmierzyliśmy jeszcze czasu. Przy tych samych danych, ustawieniach i ziarnie losowości program powinien zwracać ten sam wynik. Sprawdzimy, czy wejście zawiera wymagane kolumny, poprawne daty i skończone wartości. Brak danych lub tokenu ma powodować czytelny komunikat zamiast awarii.
+Program działa na CPU. Zakładamy, że jeden test dla koszyka od 50 do 100 spółek potrwa krócej niż 60 sekund, ale nie zmierzyliśmy jeszcze czasu. Przy tych samych danych, ustawieniach i ziarnie losowości algorytm genetyczny powinien zwracać ten sam wynik. Program sprawdza wymagane kolumny, poprawne daty i wartości cen. Brak pliku albo niepoprawne dane powodują czytelny komunikat.
 
 ## 7. Ograniczenia *(E · 4 pkt)*
 
@@ -80,8 +80,20 @@ Podzieliliśmy wstępnie odpowiedzialność za projekt. Możemy zmienić ten pod
 
 ## 10. Uruchomienie *(C · 4 pkt)*
 
-Nie dodaliśmy jeszcze kodu ani pliku `requirements.txt`, więc na razie nie da się uruchomić programu. W następnym etapie dodamy wersję Pythona, wymagane pakiety, instrukcję konfiguracji źródła danych, polecenie uruchomienia i miejsce zapisu wyników.
+Wymagany jest Python 3.10 lub nowszy. Zależności instalujemy poleceniem `python -m pip install -r requirements.txt`. Program uruchamiamy z głównego katalogu repozytorium:
+
+```bash
+python -m alpha221
+```
+
+To polecenie używa przykładowych danych syntetycznych. Porównanie algorytmu genetycznego, Markowitza i portfela 1/N zapisuje do `results/comparison.csv`. Własne ceny można podać w pliku CSV, w którym pierwsza kolumna to `date`, a kolejne kolumny zawierają skorygowane ceny zamknięcia dla tickerów:
+
+```bash
+python -m alpha221 --input data/prices.csv --risk-limit 0.25
+```
+
+Program nie pobiera danych z internetu i nie wymaga tokenu. Tiingo wykorzystamy tylko po uzyskaniu licencji zezwalającej na przechowywanie danych i ewaluację.
 
 ## 11. Narzędzia AI
 
-Przy przygotowaniu dokumentów i sprawdzaniu informacji o Tiingo korzystaliśmy z ChatGPT. Nie używaliśmy go do pisania kodu ani tworzenia wyników eksperymentów, bo jeszcze ich nie mamy. Przed oddaniem sprawdzimy treść dokumentów i warunki licencji.
+Przy przygotowaniu dokumentów, sprawdzaniu informacji o Tiingo i początkowego szkieletu programu korzystaliśmy z ChatGPT. Nie używaliśmy go do tworzenia wyników eksperymentów. Przed oddaniem sprawdzimy kod, dokumenty i warunki licencji.

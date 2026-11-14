@@ -1,0 +1,1 @@
+"""Portfolio optimization course project."""

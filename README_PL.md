@@ -6,19 +6,28 @@ Projekt z kursu sztucznej inteligencji na Collegium Da Vinci, informatyka, grupa
 
 ## Co robi projekt
 
-Planujemy stworzyć narzędzie, które pomoże inwestorom indywidualnym podzielić kapitał między wybrane akcje. Na podstawie historycznych cen dziennych i limitu ryzyka system zaproponuje wagi spółek w portfelu oraz pokaże szacowany zwrot i ryzyko. Na początek skupimy się na spółkach z sektorów AI, gamedev i półprzewodników.
+Program pomaga porównać sposoby podziału kapitału między wybrane akcje. Wczytuje historyczne ceny dzienne i limit ryzyka, a następnie proponuje wagi spółek oraz szacuje zwrot i ryzyko. Może użyć lokalnego pliku CSV albo syntetycznych danych demonstracyjnych. Zbioru danych rynkowych jeszcze nie wybraliśmy.
 
 ## Technika AI
 
-Wybraliśmy algorytm genetyczny i samodzielnie zaimplementujemy jego główne elementy. Pozwoli nam przeszukiwać wiele możliwych zestawów wag portfela z uwzględnieniem limitu ryzyka. Wyniki porównamy z modelem Markowitza i prostym portfelem równoważonym.
+Program używa algorytmu genetycznego do przeszukiwania możliwych wag portfela z uwzględnieniem limitu ryzyka. Porównuje wynik z optymalizatorem Markowitza i prostym portfelem równoważonym. Obecny szkielet w Pythonie zawiera główny algorytm i oba punkty odniesienia.
 
 ## Wyniki
 
-Nie mamy jeszcze wyników, bo nie zaczęliśmy implementacji. Naszym celem jest zwracanie wyłącznie portfeli spełniających limit ryzyka i osiągnięcie mediany zwrotu na poziomie co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych.
+Nie oceniliśmy jeszcze algorytmu na licencjonowanych danych rynkowych. Naszym celem jest zwracanie wyłącznie portfeli spełniających limit ryzyka i osiągnięcie mediany zwrotu na poziomie co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych. Wbudowane dane syntetyczne służą do uruchomienia programu, nie do raportowania wyników projektu.
 
 ## Jak uruchomić
 
-W repozytorium nie ma jeszcze uruchamialnego kodu. Wraz ze szkieletem projektu dodamy wersję Pythona, zależności, konfigurację danych, polecenie uruchomienia i miejsce zapisu wyników. Tiingo EOD to na razie tylko możliwe źródło danych: plany Starter i Trial nie pozwalają trwale przechowywać danych, a nasze porównanie algorytmu AI wymaga licencji Enterprise. Przed pobraniem danych uzyskamy tę licencję albo wybierzemy zbiór z odpowiednimi prawami. Szczegóły opisaliśmy w [notatce o Tiingo](docs/tiingo-data-notes.md).
+Wymagania: Python 3.10 lub nowszy.
+
+```bash
+git clone https://github.com/NikodemBoniecki/Alpha221.git
+cd Alpha221
+python -m pip install -r requirements.txt
+python -m alpha221
+```
+
+Domyślne polecenie generuje ceny syntetyczne i zapisuje porównanie w `results/comparison.csv`. Własny plik CSV można podać poleceniem `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. Plik musi zawierać kolumnę `date`, a potem po jednej kolumnie skorygowanej ceny zamknięcia dla każdego tickera. Tiingo EOD pozostaje możliwym źródłem, ale do porównania algorytmu AI jego aktualne warunki wymagają licencji Enterprise. Użyjemy Tiingo dopiero po uzyskaniu licencji albo wybierzemy inne źródło z odpowiednimi prawami. Szczegóły opisaliśmy w [notatce o Tiingo](docs/tiingo-data-notes.md).
 
 ## Zespół
 
