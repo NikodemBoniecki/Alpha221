@@ -6,12 +6,12 @@ Zrobiłem: Przygotowałem z pomocą ChatGPT szkielet programu w Pythonie: wczyty
 W następnym tygodniu zrobię: Doprecyzuję działanie selekcji, krzyżowania i mutacji oraz przygotuję algorytm do porównań na wybranym zbiorze danych.
 
 [Adam Remfeld]
-Zrobiłem/zrobiłam:
-W następnym tygodniu zrobię:
+Zrobiłem: Sprawdziłem wymagania dotyczące danych i z pomocą ChatGPT wybrałem zbiór Huge Stock Market Dataset CC0 oraz wstępny zestaw tickerów NVDA, AMD, MSFT, EA i TTWO. Danych jeszcze nie pobrałem.
+W następnym tygodniu zrobię: Pobiorę pliki dla wybranych tickerów, sprawdzę wspólny zakres dat i przygotuję CSV do pierwszej ewaluacji.
 
 [Nikodem Boniecki]
 Zrobiłem/zrobiłam: Uzupełniłem kartę tematu według uwag prowadzącego, poprawiłem README po polsku i angielsku oraz przygotowałem dokumentację według szablonu. Sprawdziłem warunki Tiingo i opisałem ograniczenia licencji. Przy redakcji dokumentów i researchu korzystałem z ChatGPT.
 W następnym tygodniu zrobię: Przygotuję instrukcję uruchomienia i dokumentację do szkieletu projektu oraz opiszę ewaluację względem Markowitza i 1/N.
 
-Blokuje nas: trzeba potwierdzić licencję na trwałe przechowywanie danych i benchmark AI albo wybrać alternatywne źródło.
-Zobowiązanie zespołu na następny sprint: ustalić źródło danych z odpowiednią licencją, tickery i zakres dat oraz przygotować plik CSV do pierwszej ewaluacji.
+Blokuje nas: musimy pobrać pliki i sprawdzić, czy tickery mają wspólny zakres dat.
+Zobowiązanie zespołu na następny sprint: pobrać wybrane pliki, potwierdzić wspólny zakres dat i przygotować CSV do pierwszej ewaluacji.

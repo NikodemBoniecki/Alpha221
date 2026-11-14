@@ -6,7 +6,7 @@ AI course project at Collegium Da Vinci, Computer Science, group L2 / L3, academ
 
 ## What it does
 
-The program helps compare ways to divide money among selected stocks. It reads historical daily prices and a risk limit, then suggests portfolio weights and estimates return and risk. It can use a local CSV file or synthetic demo prices. The market dataset has not been selected yet.
+The program helps individual investors compare ways to divide money among selected stocks. It reads historical daily prices and a risk limit, then suggests portfolio weights and estimates return and risk. It can use a local CSV file or synthetic demo prices. We selected a [CC0 dataset of daily U.S. stock prices](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs), but have not downloaded it yet.
 
 ## AI technique
 
@@ -27,7 +27,7 @@ python -m pip install -r requirements.txt
 python -m alpha221
 ```
 
-The default command generates synthetic prices and writes a comparison to `results/comparison.csv`. To use a CSV file, run `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. The CSV must have a `date` column followed by one adjusted closing price column per ticker. Tiingo EOD remains a possible source, but its current terms require an Enterprise license for our AI comparison. We will use Tiingo only after securing the required license, or choose another suitably licensed dataset. See [our Tiingo research](docs/tiingo-data-notes.md).
+The default command generates synthetic prices and writes a comparison to `results/comparison.csv`. To use a CSV file, run `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. The CSV must have a `date` column followed by one closing price column per ticker. We plan to prepare that file from five Kaggle ticker files. See [our Tiingo licensing notes](docs/tiingo-data-notes.md).
 
 ## Team
 

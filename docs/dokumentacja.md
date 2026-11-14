@@ -15,11 +15,11 @@ Podstawowy problem portfelowy można rozwiązać klasyczną optymalizacją śred
 
 ## 3. Dane *(B · 8 pkt)*
 
-Rozważamy [Tiingo EOD Daily Prices API](https://www.tiingo.com/documentation/end-of-day), które udostępnia dzienne ceny pod adresem `/tiingo/daily/{ticker}/prices`. Nie wybraliśmy jeszcze konkretnego zbioru, tickerów ani zakresu dat. Na początek zakładamy od 50 do 100 spółek i do pięciu lat danych dziennych. API zwraca JSON domyślnie, obsługuje też CSV. Szczegóły dotyczące wyboru symboli, tokenu i limitów zapisaliśmy w [notatce o Tiingo](tiingo-data-notes.md).
+Wybraliśmy [Huge Stock Market Dataset, wersję 3](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs). Kaggle podaje, że zbiór zawiera dzienne pliki CSV dla akcji i ETF-ów z USA, ma licencję CC0 i zajmuje około 809 MB. Opis zbioru podaje, że ceny są skorygowane o splity i dywidendy. Nie pobraliśmy jeszcze archiwum.
 
-Przed użyciem wybierzemy listę tickerów i dokładne daty, a potem sprawdzimy dostępność każdego symbolu przez endpoint metadanych. Do wyliczania zwrotów planujemy użyć pola `adjClose`, które zawiera korekty splitów i dywidend. Uporządkujemy ceny według dat, sprawdzimy braki i wyrównamy szeregi do wspólnego okresu. Następnie obliczymy dzienne stopy zwrotu, średnie zwroty i macierz kowariancji. Do ewaluacji podzielimy okres chronologicznie. Parametry dobierzemy na wcześniejszych danych, a wynik zmierzymy na późniejszych danych, których nie używaliśmy do strojenia.
+Do pierwszej ewaluacji planujemy wykorzystać NVDA, AMD, MSFT, EA i TTWO w okresie od 2012-01-03 do 2017-01-03. Po pobraniu sprawdzimy, czy każdy ticker ma wspólny zakres dat. Z plików wybierzemy datę i cenę zamknięcia, ułożymy serie w jeden szeroki CSV i sprawdzimy braki przed obliczeniem dziennych stóp zwrotu, średnich zwrotów i macierzy kowariancji. Dokładną liczbę wierszy wpiszemy po przygotowaniu pliku. Do ewaluacji użyjemy tych samych danych i ograniczeń dla GA, Markowitza oraz 1/N.
 
-Przed pobraniem musimy rozwiązać kwestię licencji. Aktualne warunki Tiingo nie pozwalają planom Starter i Trial na trwałe przechowywanie danych ani wyników pochodnych. Do testowania lub porównywania systemu AI/ML na danych Tiingo wymagana jest licencja Enterprise. Sam plan Power nie wystarczy do takiego benchmarku. Dlatego nie pobierzemy danych z Tiingo, dopóki nie uzyskamy wymaganej licencji. Jeśli jej nie dostaniemy, wybierzemy zbiór z licencją zezwalającą na zapis danych i ewaluację. Szczegóły i źródła są w [notatce o Tiingo](tiingo-data-notes.md), a pełne warunki opisuje [regulamin Tiingo](https://www.tiingo.com/tos/).
+Tiingo nie jest naszym wybranym źródłem. Sprawdziliśmy jego warunki i zapisaliśmy je w [notatce o Tiingo](tiingo-data-notes.md). Nie pobierzemy stamtąd danych bez licencji pozwalającej na ich przechowywanie i ewaluację algorytmu.
 
 ## 4. Rozwiązanie *(A · 10 pkt, B · 5 pkt)*
 
@@ -38,9 +38,9 @@ Przed pobraniem musimy rozwiązać kwestię licencji. Aktualne warunki Tiingo ni
 
 Oznaczmy wektor wag aktywów jako `w`, wektor średnich dziennych stóp zwrotu jako `μ`, a macierz kowariancji dziennych stóp zwrotu jako `Σ`. Dla portfela bez krótkiej sprzedaży wymagamy `wᵢ ≥ 0` oraz `Σᵢ wᵢ = 1`. Dzienny oczekiwany zwrot portfela wynosi `μₚ = μᵀw`, a dzienna wariancja `σₚ² = wᵀΣw`. Roczny zwrot oszacujemy jako średni zwrot dzienny pomnożony przez 252. Roczna zmienność wyniesie `σₚ,roczna = √(252 · wᵀΣw)`. To nasze założenia modelowe, które sprawdzimy podczas implementacji.
 
-Chcemy maksymalizować oczekiwany zwrot `μᵀw` przy warunku `σₚ,roczna ≤ σmax`, gdzie `σmax` oznacza limit użytkownika. W funkcji oceny możemy zastosować karę `F(w) = μᵀw - λ · max(0, σₚ,roczna - σmax)²`, gdzie `λ` jest siłą kary. Sama kara nie gwarantuje spełnienia limitu, dlatego przed zwróceniem wyniku odrzucimy portfele, które go przekraczają.
+Chcemy maksymalizować oczekiwany zwrot `μᵀw` przy warunku `σₚ,roczna ≤ σmax`, gdzie `σmax` oznacza limit użytkownika. W obecnej implementacji dopuszczalne portfele są oceniane ich rocznym zwrotem. Portfele przekraczające limit otrzymują karę `-1000 - 1000 · (σₚ,roczna - σmax)`. Algorytm zapamiętuje i zwraca wyłącznie rozwiązanie spełniające limit.
 
-Każdy osobnik będzie wektorem wag. Wylosujemy początkową populację i przeskalujemy wagi tak, aby sumowały się do 1. Planujemy selekcję turniejową, krzyżowanie ważone i mutację wag, po której ponownie je znormalizujemy. Wyniki porównamy z modelem Markowitza oraz portfelem równoważonym 1/N.
+Każdy osobnik jest wektorem wag. Program losuje początkową populację i normalizuje wagi tak, aby sumowały się do 1. Używa selekcji turniejowej, krzyżowania ważonego i mutacji wag, po której ponownie je normalizuje. Wyniki porównuje z modelem Markowitza oraz portfelem równoważonym 1/N.
 
 ### Parametry na początek
 
@@ -48,21 +48,25 @@ Do pierwszych prób przyjmiemy populację 100 osobników, maksymalnie 200 pokole
 
 ## 5. Ewaluacja *(B · 8 pkt)*
 
-Nie mamy jeszcze wyników na danych rynkowych. Program można uruchomić na danych syntetycznych, ale służą one tylko do sprawdzenia działania i nie będą traktowane jako wynik projektu. Nasz cel to zwracać tylko portfele spełniające limit ryzyka oraz osiągnąć medianę zwrotu równą co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
+Nie mamy jeszcze wyników na danych rynkowych. Program można uruchomić na danych syntetycznych, ale służą one tylko do sprawdzenia działania i nie będą traktowane jako wynik projektu. Nasz cel to zwracać wyłącznie portfele GA spełniające limit ryzyka oraz osiągnąć medianę rocznego zwrotu równą co najmniej 95% wyniku Markowitza w pięciu przypadkach. Każdy przypadek będzie obejmował jeden rok od 2012 do 2016. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
 
 | Przypadek | Punkt odniesienia | Nasze rozwiązanie |
 |---|---|---|
-| 1 do 5, do ustalenia po wyborze danych | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
+| 2012 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
+| 2013 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
+| 2014 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
+| 2015 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
+| 2016 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
 
 Po eksperymentach wpiszemy tu wyniki i krótki wniosek. Na razie nie wiemy, czy algorytm genetyczny zbliży się do Markowitza ani czy pobije portfel 1/N.
 
 ## 6. Wymagania niefunkcjonalne *(A · 5 pkt)*
 
-Program działa na CPU. Zakładamy, że jeden test dla koszyka od 50 do 100 spółek potrwa krócej niż 60 sekund, ale nie zmierzyliśmy jeszcze czasu. Przy tych samych danych, ustawieniach i ziarnie losowości algorytm genetyczny powinien zwracać ten sam wynik. Program sprawdza wymagane kolumny, poprawne daty i wartości cen. Brak pliku albo niepoprawne dane powodują czytelny komunikat.
+Program działa na CPU. Zakładamy, że jeden test dla wybranego koszyka pięciu spółek potrwa krócej niż 60 sekund, ale nie zmierzyliśmy jeszcze czasu na danych rynkowych. Przy tych samych danych, ustawieniach i ziarnie losowości algorytm genetyczny zwraca ten sam wynik. Program sprawdza wymagane kolumny, poprawne daty i wartości cen. Brak pliku albo niepoprawne dane powodują czytelny komunikat.
 
 ## 7. Ograniczenia *(E · 4 pkt)*
 
-Wynik zależy od wybranego okresu historycznego i nie przewiduje przyszłych cen. Nie uwzględniamy na razie kosztów transakcji, podatków, płynności ani ograniczeń sektorowych. Algorytm genetyczny może nie znaleźć najlepszego możliwego portfela, a przy bardzo niskim limicie może nie znaleźć żadnego dopuszczalnego portfela. Wyniku nie należy traktować jako porady inwestycyjnej. W dalszej pracy możemy dodać koszty transakcji, testy na kolejnych okresach i dodatkowe ograniczenia.
+Wynik zależy od wybranego okresu historycznego i nie przewiduje przyszłych cen. Zbiór kończy się w 2017 roku, więc nie opisuje obecnego rynku i może zawierać błąd przeżywalności. Nie uwzględniamy na razie kosztów transakcji, podatków, płynności ani ograniczeń sektorowych. Algorytm genetyczny może nie znaleźć najlepszego możliwego portfela, a przy bardzo niskim limicie może nie znaleźć żadnego dopuszczalnego portfela. Wyniku nie należy traktować jako porady inwestycyjnej.
 
 ## 8. Zastosowania w praktyce *(E · 4 pkt)*
 
@@ -92,8 +96,8 @@ To polecenie używa przykładowych danych syntetycznych. Porównanie algorytmu g
 python -m alpha221 --input data/prices.csv --risk-limit 0.25
 ```
 
-Program nie pobiera danych z internetu i nie wymaga tokenu. Tiingo wykorzystamy tylko po uzyskaniu licencji zezwalającej na przechowywanie danych i ewaluację.
+Program nie pobiera danych z internetu i nie wymaga tokenu. Wybrany zbiór pobierzemy osobno z Kaggle i przygotujemy jako CSV opisany wyżej.
 
 ## 11. Narzędzia AI
 
-Przy przygotowaniu dokumentów, sprawdzaniu informacji o Tiingo i początkowego szkieletu programu korzystaliśmy z ChatGPT. Nie używaliśmy go do tworzenia wyników eksperymentów. Przed oddaniem sprawdzimy kod, dokumenty i warunki licencji.
+Przy przygotowaniu dokumentów, sprawdzaniu informacji o Tiingo, wyborze danych i początkowego szkieletu programu korzystaliśmy z ChatGPT. Nie używaliśmy go do tworzenia wyników eksperymentów. Przed oddaniem sprawdzimy kod, dokumenty i dane.

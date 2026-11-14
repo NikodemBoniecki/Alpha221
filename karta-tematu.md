@@ -43,28 +43,28 @@ Dlaczego ta technologia pasuje do tego problemu: Algorytm genetyczny pozwoli nam
 
 | | |
 |---|---|
-| Źródło (link do konkretnego zbioru, nie do serwisu) | Nie wybraliśmy jeszcze konkretnego zbioru. Rozważamy [Tiingo EOD Daily Prices](https://www.tiingo.com/documentation/end-of-day), endpoint `/tiingo/daily/{ticker}/prices`. Musimy ustalić tickery i daty. Opisaliśmy wymagania w [`docs/tiingo-data-notes.md`](docs/tiingo-data-notes.md). |
-| Rozmiar i format | Celujemy w 50 do 100 tickerów i do 5 lat cen dziennych. API zwraca dane w JSON, może też zwracać CSV. Dokładny zakres ustalimy po wyborze źródła i tickerów. |
-| Czy dane są już dostępne? | Nie. Nie wybraliśmy zbioru ani nie pobraliśmy danych. |
-| Plan pozyskania danych | Ustalimy tickery i daty, a potem sprawdzimy dostępność każdego symbolu. Przed pobraniem danych uzyskamy licencję Enterprise Tiingo na ewaluację AI albo wybierzemy inny konkretny zbiór, którego licencja pozwala przechowywać dane i porównywać algorytmy. Starter ani Power nie dają prawa do takiego benchmarku Tiingo. |
+| Źródło (link do konkretnego zbioru, nie do serwisu) | [Huge Stock Market Dataset, wersja 3](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs). Wybierzemy pliki dla NVDA, AMD, MSFT, EA i TTWO. Zbiór ma licencję CC0. |
+| Rozmiar i format | Pięć plików CSV z dziennymi cenami OHLCV. Planowany okres to 2012-01-03 do 2017-01-03, około 1 260 sesji na spółkę, łącznie około 6 300 obserwacji przed sprawdzeniem braków. |
+| Czy dane są już dostępne? | Nie. Wybraliśmy zbiór, ale nie pobraliśmy jeszcze plików. |
+| Plan pozyskania danych | Pobierzemy wybrane pliki z Kaggle, sprawdzimy dostępność tickerów i zakres dat, a potem przygotujemy wspólny plik CSV z datą i skorygowaną ceną zamknięcia. Kaggle opisuje ceny jako skorygowane o splity i dywidendy. |
 
 ## 7. Stos technologiczny
 
-Napiszemy program w Pythonie 3, tak aby działał na CPU. Do pobierania danych możemy użyć `requests`, a do obliczeń `numpy` i `pandas`. Wersję Pythona i zależności ustalimy przy tworzeniu szkieletu. Tiingo wymaga tokenu, ale nie pobierzemy danych bez licencji Enterprise na ich przechowywanie i porównawczą ewaluację AI. Więcej informacji znajduje się w [`docs/tiingo-data-notes.md`](docs/tiingo-data-notes.md).
+Program działa na Pythonie 3.10 lub nowszym i CPU. Do obliczeń używa `numpy` i `scipy`; zależności znajdują się w `requirements.txt`. Zbiór pobierzemy ręcznie z Kaggle, a do programu wczytamy przygotowany plik CSV. Nie korzystamy z API ani tokenu.
 
 ## 8. Kryterium sukcesu (obowiązkowe)
 
 - **Metryka:** odsetek zwróconych portfeli spełniających limit rocznej zmienności oraz relacja rocznego oczekiwanego zwrotu GA do wyniku modelu Markowitza przy tym samym limicie.
-- **Próg (liczba):** każdy zwrócony portfel musi spełniać limit ryzyka. W pięciu przypadkach testowych mediana zwrotu ma wynieść co najmniej 95% wyniku Markowitza. To nasz cel na ewaluację.
+- **Próg (liczba):** każdy portfel zwrócony przez algorytm genetyczny musi spełniać limit ryzyka. W pięciu przypadkach, po jednym dla każdego roku 2012-2016, mediana rocznego zwrotu ma wynieść co najmniej 95% wyniku Markowitza. To nasz cel na ewaluację.
 - **Punkt odniesienia** (prosta metoda, z którą porównacie wynik): klasyczny model Markowitza (punkt odniesienia jakości) i portfel równoważony 1/N (prosta metoda bazowa).
 
 ## 9. Zakres minimalny (obowiązkowe)
 
-Nasz program wczyta historyczne ceny dla kilku tickerów, obliczy dzienne stopy zwrotu i macierz kowariancji, a następnie uruchomi nasz algorytm genetyczny. Dopuścimy tylko długie pozycje, a wagi portfela będą sumować się do 1. Program pokaże wagi, szacowany zwrot i ryzyko, nie zwróci portfela przekraczającego limit i porówna wynik z Markowitzem oraz 1/N na tych samych danych.
+Nasz program wczyta historyczne ceny dla kilku tickerów, obliczy dzienne stopy zwrotu i macierz kowariancji, a następnie uruchomi algorytm genetyczny. Dopuścimy tylko długie pozycje, a wagi portfela będą sumować się do 1. Program pokaże wagi, szacowany zwrot i ryzyko. Algorytm genetyczny nie zwróci rozwiązania przekraczającego limit, a wyniki porównamy z Markowitzem i 1/N na tych samych danych. Jeśli portfel 1/N przekroczy limit, oznaczymy go jako niespełniający ograniczenia.
 
 ## 10. Zakres opcjonalny
 
-Jeśli wystarczy czasu, dodamy pobieranie danych z API, porównamy kilka ustawień parametrów i ziaren losowości, narysujemy granicę efektywną albo przygotujemy prosty ekran do wyboru tickerów i limitu ryzyka.
+Jeśli wystarczy czasu, porównamy kilka ustawień parametrów i ziaren losowości, narysujemy granicę efektywną albo przygotujemy prosty ekran do wyboru tickerów i limitu ryzyka.
 
 ## 11. Repozytorium
 
@@ -74,7 +74,7 @@ Raporty sprintów prowadzimy w pliku `sprints.txt` w głównym katalogu repozyto
 
 ## 12. Główne ryzyko i plan awaryjny (obowiązkowe)
 
-Największym ryzykiem jest brak licencji na przechowywanie danych i ewaluację algorytmu. Przed pobraniem danych wybierzemy źródło, którego warunki pozwalają na taki użytek. Jeśli limit ryzyka okaże się zbyt niski, program zgłosi brak dopuszczalnego portfela zamiast zwracać wynik, który łamie ograniczenie. Dane syntetyczne wykorzystamy tylko do sprawdzenia kodu, nie do końcowej ewaluacji.
+Największym ryzykiem jest to, że wybrane tickery nie będą miały wspólnego zakresu dat albo stary zbiór nie będzie dobrze opisywał obecnego rynku. Przed ewaluacją sprawdzimy pliki i wspólny okres. Jeśli danych będzie za mało, użyjemy innego zbioru CC0 albo zmniejszymy liczbę tickerów. Przy zbyt niskim limicie ryzyka program zgłosi brak dopuszczalnego portfela. Dane syntetyczne wykorzystamy tylko do sprawdzenia kodu, nie do końcowej ewaluacji.
 
 ---
 

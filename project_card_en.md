@@ -43,19 +43,19 @@ A genetic algorithm lets us search many possible sets of portfolio weights and a
 
 | | |
 |---|---|
-| Source | We have not selected a dataset yet. Tiingo EOD Daily Prices is one candidate: [documentation](https://www.tiingo.com/documentation/end-of-day), endpoint `/tiingo/daily/{ticker}/prices`. We still need to choose tickers and dates. See [`docs/tiingo-data-notes.md`](docs/tiingo-data-notes.md) for the license details. |
-| Planned size and format | We are considering 50 to 100 tickers and up to five years of daily prices. The API returns JSON by default and also supports CSV. |
-| Data available? | No. We have not selected or downloaded the dataset. |
-| Acquisition plan | We will choose tickers and dates and check that each symbol is available. Before using Tiingo, we need an Enterprise license that allows storing the data and evaluating an AI system. Otherwise, we will choose another specific dataset with a license that allows this use. Starter and Power do not allow the planned benchmark. |
+| Source | [Huge Stock Market Dataset, version 3](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs). We plan to use the NVDA, AMD, MSFT, EA, and TTWO files. The dataset is marked CC0. |
+| Planned size and format | Five CSV files with daily OHLCV data. Planned dates are 2012-01-03 to 2017-01-03, about 1,260 sessions per stock or about 6,300 observations before checking gaps. |
+| Data available? | No. We have selected the dataset but have not downloaded the files. |
+| Acquisition plan | We will download the five files from Kaggle, check ticker and date coverage, then prepare one wide CSV with dates and adjusted closing prices. Kaggle describes the prices as adjusted for splits and dividends. |
 
 ## 7. Technology stack
 
-We plan to use Python 3 on CPU. We may use `requests` for API access and `numpy` and `pandas` for data processing and calculations. We will set the exact Python and library versions when we add the project skeleton. Tiingo requires an API token, but we will not download its data without a license for storage and AI evaluation. More details are in [`docs/tiingo-data-notes.md`](docs/tiingo-data-notes.md).
+The program runs on Python 3.10 or newer and CPU. It uses `numpy` and `scipy` for calculations; dependencies are listed in `requirements.txt`. We will download the data from Kaggle manually and load a prepared CSV file. The project does not use an API token.
 
 ## 8. Success criterion
 
 - **Metric:** Share of returned portfolios that meet the annualized volatility limit, and the genetic algorithm's annualized return compared with Markowitz under the same limit.
-- **Threshold:** Every returned portfolio must meet the risk limit. Across five test cases, median return must reach at least 95% of the Markowitz result. This is our evaluation target.
+- **Threshold:** Every portfolio returned by the genetic algorithm must meet the risk limit. Across five cases, one for each year from 2012 to 2016, median annual return must reach at least 95% of the Markowitz result. This is our evaluation target.
 - **Baselines:** Markowitz optimization and an equal-weight 1/N portfolio.
 
 ## 9. Minimum scope
@@ -64,7 +64,7 @@ Our program will load historical prices for several tickers, calculate daily ret
 
 ## 10. Optional scope
 
-If we have time, we will add direct API downloads, compare more parameter settings and random seeds, plot the efficient frontier, or build a simple screen for choosing tickers and the risk limit.
+If we have time, we will compare more parameter settings and random seeds, plot the efficient frontier, or build a simple screen for choosing tickers and the risk limit.
 
 ## 11. Repository
 
@@ -74,4 +74,4 @@ We will keep sprint reports in `sprints.txt` at the repository root.
 
 ## 12. Main risk and fallback plan
 
-Our main risk is not getting a license that allows us to store and evaluate market data. We will check the data terms before downloading anything and use a suitably licensed dataset if Tiingo does not permit our planned use. If the risk limit is too low for the selected stocks, the program will report that no valid portfolio was found. We will use synthetic data to check the code only, not for the final evaluation.
+Our main risk is that some selected tickers may not cover the same dates or that the old dataset may not represent the current market. We will check the files and common date range before evaluation. If coverage is insufficient, we will use another CC0 stock dataset or reduce the ticker set. If the risk limit is too low, the program will report that no valid portfolio was found. Synthetic data is only for checking the code.

@@ -1,4 +1,4 @@
-# Tiingo EOD: co musimy ustalić
+# Tiingo EOD: sprawdzone warunki
 
 Sprawdziliśmy oficjalną dokumentację, cennik i warunki Tiingo 14.11.2026. Warunki mogą się zmienić, więc sprawdzimy je ponownie przed użyciem API.
 
@@ -33,4 +33,4 @@ Warunki Tiingo wymagają licencji Enterprise do testowania, ewaluowania lub por�
 3. Pole `adjClose` oraz format JSON albo CSV.
 4. Źródło z licencją pozwalającą na trwałe przechowywanie i porównawczą ewaluację. Dla Tiingo najpierw uzyskamy zgodę/licencję Enterprise.
 
-Na razie nie wybieramy płatnego planu w panelu Tiingo ani nie pobieramy danych. Najpierw ustalimy, czy Tiingo może przyznać odpowiednie prawa, albo przejdziemy na alternatywny zbiór.
+Nie wybraliśmy Tiingo jako źródła projektu i nie pobraliśmy stamtąd danych. Do projektu wybraliśmy [Huge Stock Market Dataset na Kaggle](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs), który jest oznaczony jako CC0. Te notatki zachowujemy jako podsumowanie sprawdzonych warunków Tiingo.

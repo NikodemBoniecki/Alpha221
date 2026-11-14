@@ -6,7 +6,7 @@ Projekt z kursu sztucznej inteligencji na Collegium Da Vinci, informatyka, grupa
 
 ## Co robi projekt
 
-Program pomaga porównać sposoby podziału kapitału między wybrane akcje. Wczytuje historyczne ceny dzienne i limit ryzyka, a następnie proponuje wagi spółek oraz szacuje zwrot i ryzyko. Może użyć lokalnego pliku CSV albo syntetycznych danych demonstracyjnych. Zbioru danych rynkowych jeszcze nie wybraliśmy.
+Program pomaga inwestorom indywidualnym porównać sposoby podziału kapitału między wybrane akcje. Wczytuje historyczne ceny dzienne i limit ryzyka, a następnie proponuje wagi spółek oraz szacuje zwrot i ryzyko. Może użyć lokalnego pliku CSV albo syntetycznych danych demonstracyjnych. Wybraliśmy [zbiór dziennych cen akcji z licencją CC0](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs), ale jeszcze go nie pobraliśmy.
 
 ## Technika AI
 
@@ -27,7 +27,7 @@ python -m pip install -r requirements.txt
 python -m alpha221
 ```
 
-Domyślne polecenie generuje ceny syntetyczne i zapisuje porównanie w `results/comparison.csv`. Własny plik CSV można podać poleceniem `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. Plik musi zawierać kolumnę `date`, a potem po jednej kolumnie skorygowanej ceny zamknięcia dla każdego tickera. Tiingo EOD pozostaje możliwym źródłem, ale do porównania algorytmu AI jego aktualne warunki wymagają licencji Enterprise. Użyjemy Tiingo dopiero po uzyskaniu licencji albo wybierzemy inne źródło z odpowiednimi prawami. Szczegóły opisaliśmy w [notatce o Tiingo](docs/tiingo-data-notes.md).
+Domyślne polecenie generuje ceny syntetyczne i zapisuje porównanie w `results/comparison.csv`. Własny plik CSV można podać poleceniem `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. Plik musi zawierać kolumnę `date`, a potem po jednej kolumnie ceny zamknięcia dla każdego tickera. Planujemy przygotować ten plik z pięciu plików tickerów pobranych z Kaggle. Szczegóły dotyczące licencji Tiingo opisaliśmy w [notatce](docs/tiingo-data-notes.md).
 
 ## Zespół
 
