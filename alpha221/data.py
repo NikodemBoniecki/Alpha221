@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 
-def load_prices(path: Path) -> tuple[list[str], np.ndarray]:
+def load_prices(path: Path) -> tuple[list[str], list[date], np.ndarray]:
     with path.open(newline="", encoding="utf-8") as file:
         reader = csv.reader(file)
         header = next(reader, None)
@@ -41,10 +41,10 @@ def load_prices(path: Path) -> tuple[list[str], np.ndarray]:
     if dates != sorted(set(dates)):
         raise ValueError("Dates must be unique and sorted from oldest to newest.")
 
-    return tickers, np.asarray(prices, dtype=float)
+    return tickers, dates, np.asarray(prices, dtype=float)
 
 
-def make_demo_prices(seed: int = 7, periods: int = 252) -> tuple[list[str], list[str], np.ndarray]:
+def make_demo_prices(seed: int = 7, periods: int = 252) -> tuple[list[str], list[date], np.ndarray]:
     tickers = ["AI_A", "CHIP_A", "CHIP_B", "GAME_A", "GAME_B"]
     rng = np.random.default_rng(seed)
 
@@ -55,11 +55,11 @@ def make_demo_prices(seed: int = 7, periods: int = 252) -> tuple[list[str], list
     returns = daily_drift + market_returns * betas + noise
     prices = np.vstack((np.full(len(tickers), 100.0), 100.0 * np.cumprod(1 + returns, axis=0)))
 
-    dates: list[str] = []
+    dates: list[date] = []
     current = date(2024, 1, 2)
     while len(dates) < periods + 1:
         if current.weekday() < 5:
-            dates.append(current.isoformat())
+            dates.append(current)
         current += timedelta(days=1)
 
     return tickers, dates, prices

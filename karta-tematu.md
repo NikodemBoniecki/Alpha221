@@ -54,8 +54,8 @@ Program działa na Pythonie 3.10 lub nowszym i CPU. Do obliczeń używa `numpy` 
 
 ## 8. Kryterium sukcesu (obowiązkowe)
 
-- **Metryka:** odsetek zwróconych portfeli spełniających limit rocznej zmienności oraz relacja rocznego oczekiwanego zwrotu GA do wyniku modelu Markowitza przy tym samym limicie.
-- **Próg (liczba):** każdy portfel zwrócony przez algorytm genetyczny musi spełniać limit ryzyka. W pięciu przypadkach, po jednym dla każdego roku 2012-2016, mediana rocznego zwrotu ma wynieść co najmniej 95% wyniku Markowitza. To nasz cel na ewaluację.
+- **Metryka:** odsetek portfeli GA spełniających limit rocznej zmienności oraz roczna relacja zwrotu GA do zwrotu Markowitza przy tym samym limicie.
+- **Próg (liczba):** każdy portfel zwrócony przez algorytm genetyczny musi spełniać limit ryzyka. Mediana pięciu rocznych relacji zwrotu GA do Markowitza, dla lat 2012-2016, ma wynieść co najmniej 0,95 (95%). To nasz cel na ewaluację.
 - **Punkt odniesienia** (prosta metoda, z którą porównacie wynik): klasyczny model Markowitza (punkt odniesienia jakości) i portfel równoważony 1/N (prosta metoda bazowa).
 
 ## 9. Zakres minimalny (obowiązkowe)

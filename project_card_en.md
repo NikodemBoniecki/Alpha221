@@ -54,8 +54,8 @@ The program runs on Python 3.10 or newer and CPU. It uses `numpy` and `scipy` fo
 
 ## 8. Success criterion
 
-- **Metric:** Share of returned portfolios that meet the annualized volatility limit, and the genetic algorithm's annualized return compared with Markowitz under the same limit.
-- **Threshold:** Every portfolio returned by the genetic algorithm must meet the risk limit. Across five cases, one for each year from 2012 to 2016, median annual return must reach at least 95% of the Markowitz result. This is our evaluation target.
+- **Metric:** Share of GA portfolios that meet the annualized volatility limit, and the annual GA to Markowitz return ratio under the same limit.
+- **Threshold:** Every portfolio returned by the genetic algorithm must meet the risk limit. The median of five annual GA to Markowitz return ratios, one for each year from 2012 to 2016, must be at least 0.95 (95%). This is our evaluation target.
 - **Baselines:** Markowitz optimization and an equal-weight 1/N portfolio.
 
 ## 9. Minimum scope

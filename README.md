@@ -10,11 +10,11 @@ The program helps individual investors compare ways to divide money among select
 
 ## AI technique
 
-The program uses a genetic algorithm to search possible portfolio weights under a risk limit. It compares the result with a Markowitz optimizer and a simple equal-weight portfolio. The current Python skeleton has the main algorithm and both baselines.
+The program uses a genetic algorithm to search possible portfolio weights under a risk limit. It compares the result with a Markowitz optimizer and a simple equal-weight portfolio. The Python application includes the main algorithm and both baselines.
 
 ## Results
 
-We have not evaluated the algorithm on licensed market data yet. Our target is for every returned portfolio to meet the risk limit and for median return to reach at least 95% of the Markowitz result across five test cases. The built-in synthetic demo is for trying the program, not for reporting project results.
+We have not evaluated the algorithm on market data yet. Our target is for every GA portfolio to meet the risk limit and for the median of five annual GA to Markowitz return ratios to reach at least 0.95. The built-in synthetic demo is for trying the program, not for reporting project results.
 
 ## How to run
 
@@ -28,6 +28,15 @@ python -m alpha221
 ```
 
 The default command generates synthetic prices and writes a comparison to `results/comparison.csv`. To use a CSV file, run `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. The CSV must have a `date` column followed by one closing price column per ticker. We plan to prepare that file from five Kaggle ticker files. See [our Tiingo licensing notes](docs/tiingo-data-notes.md).
+
+Prepare a wide CSV from the downloaded Kaggle files, then compare each calendar year:
+
+```bash
+python -m alpha221.prepare --source data/raw/Stocks --tickers NVDA AMD MSFT EA TTWO --start 2012-01-03 --end 2017-01-03 --output data/prices.csv
+python -m alpha221 --input data/prices.csv --yearly --risk-limit 0.25
+```
+
+The annual report and the median genetic algorithm to Markowitz return ratio are printed and saved to `results/comparison.csv`.
 
 ## Team
 

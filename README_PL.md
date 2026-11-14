@@ -14,7 +14,7 @@ Program używa algorytmu genetycznego do przeszukiwania możliwych wag portfela 
 
 ## Wyniki
 
-Nie oceniliśmy jeszcze algorytmu na licencjonowanych danych rynkowych. Naszym celem jest zwracanie wyłącznie portfeli spełniających limit ryzyka i osiągnięcie mediany zwrotu na poziomie co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych. Wbudowane dane syntetyczne służą do uruchomienia programu, nie do raportowania wyników projektu.
+Nie oceniliśmy jeszcze algorytmu na danych rynkowych. Celem jest, aby każdy portfel GA spełniał limit ryzyka, a mediana pięciu rocznych relacji zwrotu GA do Markowitza wyniosła co najmniej 0,95. Dane syntetyczne służą do uruchomienia programu, nie do raportowania wyników projektu.
 
 ## Jak uruchomić
 
@@ -28,6 +28,15 @@ python -m alpha221
 ```
 
 Domyślne polecenie generuje ceny syntetyczne i zapisuje porównanie w `results/comparison.csv`. Własny plik CSV można podać poleceniem `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. Plik musi zawierać kolumnę `date`, a potem po jednej kolumnie ceny zamknięcia dla każdego tickera. Planujemy przygotować ten plik z pięciu plików tickerów pobranych z Kaggle. Szczegóły dotyczące licencji Tiingo opisaliśmy w [notatce](docs/tiingo-data-notes.md).
+
+Pliki Kaggle można połączyć do wspólnego CSV i uruchomić porównanie dla każdego roku poleceniami:
+
+```bash
+python -m alpha221.prepare --source data/raw/Stocks --tickers NVDA AMD MSFT EA TTWO --start 2012-01-03 --end 2017-01-03 --output data/prices.csv
+python -m alpha221 --input data/prices.csv --yearly --risk-limit 0.25
+```
+
+Raport roczny zapisuje wyniki dla dostępnych lat oraz medianę relacji GA do Markowitza w `results/comparison.csv` i terminalu.
 
 ## Zespół
 

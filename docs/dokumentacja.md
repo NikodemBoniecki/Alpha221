@@ -3,7 +3,7 @@
 **Grupa:** L2 / L3 | **Zespół:** Z4 | **Repozytorium:** https://github.com/NikodemBoniecki/Alpha221
 Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
 
-Mamy już uruchamialny szkielet programu. Na razie działa na danych syntetycznych albo na pliku CSV przygotowanym lokalnie. Nie wybraliśmy jeszcze rynkowego zbioru danych i nie mamy wyników eksperymentów.
+Mamy uruchamialną wersję konsolową. Działa na danych syntetycznych albo na cenach z plików CSV. Wybraliśmy rynkowy zbiór danych, ale jeszcze go nie pobraliśmy i nie mamy wyników eksperymentów.
 
 ## 1. Problem *(rubryka A)*
 
@@ -25,7 +25,7 @@ Tiingo nie jest naszym wybranym źródłem. Sprawdziliśmy jego warunki i zapisa
 
 ### Jak będzie działał program
 
-1. Wczytamy ceny z lokalnego pliku CSV. Domyślnie program tworzy przykładowe dane syntetyczne.
+1. Domyślnie program tworzy przykładowe dane syntetyczne. Dla ewaluacji przygotujemy wspólny plik CSV z plików tickerów z Kaggle.
 2. Sprawdzimy dane, uporządkujemy daty i obliczymy dzienne stopy zwrotu.
 3. Wyliczymy średnie zwroty i macierz kowariancji.
 4. Utworzymy populację portfeli. Każdy portfel będzie miał nieujemne wagi o sumie równej 1.
@@ -48,7 +48,7 @@ Do pierwszych prób przyjmiemy populację 100 osobników, maksymalnie 200 pokole
 
 ## 5. Ewaluacja *(B · 8 pkt)*
 
-Nie mamy jeszcze wyników na danych rynkowych. Program można uruchomić na danych syntetycznych, ale służą one tylko do sprawdzenia działania i nie będą traktowane jako wynik projektu. Nasz cel to zwracać wyłącznie portfele GA spełniające limit ryzyka oraz osiągnąć medianę rocznego zwrotu równą co najmniej 95% wyniku Markowitza w pięciu przypadkach. Każdy przypadek będzie obejmował jeden rok od 2012 do 2016. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
+Nie mamy jeszcze wyników na danych rynkowych. Program można uruchomić na danych syntetycznych, ale służą one tylko do sprawdzenia działania i nie będą traktowane jako wynik projektu. Tryb `--yearly` porównuje metody osobno dla każdego roku z danych wejściowych i podaje medianę relacji zwrotu GA do Markowitza, jeśli zwroty Markowitza są dodatnie. Nasz cel to zwracać wyłącznie portfele GA spełniające limit ryzyka oraz uzyskać medianę pięciu rocznych relacji GA do Markowitza co najmniej 0,95. Przypadki obejmą lata 2012-2016. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
 
 | Przypadek | Punkt odniesienia | Nasze rozwiązanie |
 |---|---|---|
@@ -90,14 +90,20 @@ Wymagany jest Python 3.10 lub nowszy. Zależności instalujemy poleceniem `pytho
 python -m alpha221
 ```
 
-To polecenie używa przykładowych danych syntetycznych. Porównanie algorytmu genetycznego, Markowitza i portfela 1/N zapisuje do `results/comparison.csv`. Własne ceny można podać w pliku CSV, w którym pierwsza kolumna to `date`, a kolejne kolumny zawierają skorygowane ceny zamknięcia dla tickerów:
+To polecenie używa przykładowych danych syntetycznych. Porównanie algorytmu genetycznego, Markowitza i portfela 1/N zapisuje do `results/comparison.csv`. Własne ceny można podać w pliku CSV, w którym pierwsza kolumna to `date`, a kolejne kolumny zawierają ceny zamknięcia dla tickerów. Pliki z Kaggle można przygotować poleceniem:
 
 ```bash
-python -m alpha221 --input data/prices.csv --risk-limit 0.25
+python -m alpha221.prepare --source data/raw/Stocks --tickers NVDA AMD MSFT EA TTWO --start 2012-01-03 --end 2017-01-03 --output data/prices.csv
 ```
 
-Program nie pobiera danych z internetu i nie wymaga tokenu. Wybrany zbiór pobierzemy osobno z Kaggle i przygotujemy jako CSV opisany wyżej.
+Porównanie dla każdego roku uruchomimy poleceniem:
+
+```bash
+python -m alpha221 --input data/prices.csv --yearly --risk-limit 0.25
+```
+
+Program nie pobiera danych z internetu i nie wymaga tokenu. Wybrany zbiór pobierzemy osobno z Kaggle i przygotujemy jako CSV opisany wyżej. Tryb roczny zwraca medianę relacji tylko wtedy, gdy Markowitz ma dodatni zwrot we wszystkich przypadkach i dostępnych jest dokładnie pięć lat.
 
 ## 11. Narzędzia AI
 
-Przy przygotowaniu dokumentów, sprawdzaniu informacji o Tiingo, wyborze danych i początkowego szkieletu programu korzystaliśmy z ChatGPT. Nie używaliśmy go do tworzenia wyników eksperymentów. Przed oddaniem sprawdzimy kod, dokumenty i dane.
+Przy przygotowaniu dokumentów, sprawdzaniu informacji o Tiingo, wyborze danych i kodu korzystaliśmy z ChatGPT. Nie używaliśmy go do tworzenia wyników eksperymentów. Przed oddaniem sprawdzimy kod, dokumenty i dane.

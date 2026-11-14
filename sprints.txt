@@ -10,8 +10,8 @@ Zrobiłem: Sprawdziłem wymagania dotyczące danych i z pomocą ChatGPT wybrałe
 W następnym tygodniu zrobię: Pobiorę pliki dla wybranych tickerów, sprawdzę wspólny zakres dat i przygotuję CSV do pierwszej ewaluacji.
 
 [Nikodem Boniecki]
-Zrobiłem/zrobiłam: Uzupełniłem kartę tematu według uwag prowadzącego, poprawiłem README po polsku i angielsku oraz przygotowałem dokumentację według szablonu. Sprawdziłem warunki Tiingo i opisałem ograniczenia licencji. Przy redakcji dokumentów i researchu korzystałem z ChatGPT.
-W następnym tygodniu zrobię: Przygotuję instrukcję uruchomienia i dokumentację do szkieletu projektu oraz opiszę ewaluację względem Markowitza i 1/N.
+Zrobiłem: Dodałem przygotowanie wspólnego CSV z plików tickerów oraz tryb porównania GA, Markowitza i 1/N dla każdego roku. Dodałem medianę relacji zwrotu GA do Markowitza. Sprawdziłem oba polecenia na przykładowych danych. Przy pracy nad kodem i dokumentacją korzystałem z ChatGPT.
+W następnym tygodniu zrobię: Przygotuję plik z wybranego zbioru i uruchomię ewaluację dla pięciu okresów rocznych.
 
 Blokuje nas: musimy pobrać pliki i sprawdzić, czy tickery mają wspólny zakres dat.
 Zobowiązanie zespołu na następny sprint: pobrać wybrane pliki, potwierdzić wspólny zakres dat i przygotować CSV do pierwszej ewaluacji.
