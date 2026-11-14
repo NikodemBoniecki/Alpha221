@@ -1,89 +1,87 @@
 # Optymalizator portfela inwestycyjnego algorytmem genetycznym przy ograniczeniu ryzyka
 
-**Grupa:** L2 / L3 · **Zespół:** Z4 · **Repozytorium:** https://github.com/NikodemBoniecki/Alpha221  
-Sztuczna inteligencja — laboratorium · Collegium Da Vinci · rok akad. 2026/2027
+**Grupa:** L2 / L3 | **Zespół:** Z4 | **Repozytorium:** https://github.com/NikodemBoniecki/Alpha221
+Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
 
-> Status dokumentu: projekt jest na etapie planowania. Kod, pobrane dane, parametry końcowe i wyniki ewaluacji nie są jeszcze dostępne. Wartości opisane jako wstępne są celami do potwierdzenia podczas implementacji.
+Projekt jest na etapie planowania. Nie napisaliśmy jeszcze kodu, nie pobraliśmy danych i nie mamy wyników. Parametry i próg opisane niżej są naszymi założeniami na początek pracy.
 
 ## 1. Problem *(rubryka A)*
 
-Inwestor indywidualny, który wybiera kilka spółek, musi zdecydować, jak podzielić pomiędzy nie kapitał, aby uzyskać możliwie wysoki oczekiwany zwrot przy ograniczonym ryzyku. System przyjmie szeregi historycznych cen dziennych dla wybranych akcji oraz maksymalny poziom ryzyka użytkownika. Zwróci wagi aktywów w portfelu oraz oszacowane ryzyko i oczekiwany zwrot. Początkowy zakres obejmuje akcje związane z AI, gamedev i półprzewodnikami.
+Chcemy pomóc inwestorom indywidualnym zdecydować, jak podzielić kapitał między wybrane akcje, uwzględniając oczekiwany zwrot i ryzyko. Program przyjmie historyczne ceny dzienne spółek oraz limit ryzyka podany przez użytkownika. Następnie zaproponuje wagi spółek w portfelu i oszacuje jego zwrot oraz ryzyko. Na początek skupimy się na firmach z obszarów AI, gamedev i półprzewodników.
 
 ## 2. Dlaczego SI i dlaczego ta technika *(B · 7 pkt)*
 
-Podstawowy problem średnia-wariancja można rozwiązać klasyczną metodą optymalizacji, więc dla planowanej skali nie twierdzimy, że algorytm tradycyjny jest zbyt kosztowny. Algorytm genetyczny wybraliśmy jako technikę SI z zakresu laboratorium, aby zbadać heurystyczne przeszukiwanie przestrzeni wag i porównać je z rozwiązaniem Markowitza. Sieć neuronowa nie jest tu naturalnym wyborem, ponieważ projekt nie przewiduje uczenia modelu do prognozowania etykiet ani cen; system ekspertowy wymagałby ręcznego zapisania reguł, które nie są głównym przedmiotem problemu.
+Podstawowy problem portfelowy można rozwiązać klasyczną optymalizacją średnia-wariancja, więc nie zakładamy, że zwykły algorytm będzie za wolny. Wybraliśmy algorytm genetyczny, bo jest tematem z laboratorium i pozwoli nam porównać przeszukiwanie heurystyczne z rozwiązaniem Markowitza. Sieć neuronowa nie pasuje do naszego celu, bo nie prognozujemy etykiet ani cen. System ekspertowy wymagałby reguł, których nie mamy.
 
 ## 3. Dane *(B · 8 pkt)*
 
-Planowanym źródłem danych jest [Tiingo EOD Daily Prices API](https://www.tiingo.com/documentation/end-of-day), endpoint `/tiingo/daily/{ticker}/prices`. Lista tickerów i dokładny zakres dat nie zostały jeszcze ustalone. Zakładamy około 50–100 spółek oraz do pięciu lat cen dziennych w odpowiedziach JSON; dokładny rozmiar danych zależy od wybranych symboli i okresu. Dane nie zostały jeszcze pobrane. Zespół uzyska token API i przechowa go lokalnie jako zmienną środowiskową, a nie w repozytorium.
+Rozważamy [Tiingo EOD Daily Prices API](https://www.tiingo.com/documentation/end-of-day), które udostępnia dzienne ceny pod adresem `/tiingo/daily/{ticker}/prices`. Nie wybraliśmy jeszcze konkretnego zbioru, tickerów ani zakresu dat. Na początek zakładamy od 50 do 100 spółek i do pięciu lat danych dziennych. API zwraca JSON domyślnie, obsługuje też CSV. Szczegóły dotyczące wyboru symboli, tokenu i limitów zapisaliśmy w [notatce o Tiingo](tiingo-data-notes.md).
 
-Przed obliczeniami dane zostaną uporządkowane według dat, sprawdzone pod kątem braków i wyrównane dla wspólnego okresu. Z cen zostaną wyliczone dzienne stopy zwrotu, na których obliczymy średnie zwroty i macierz kowariancji. Podział ewaluacyjny będzie chronologiczny: parametry i wybór rozwiązania będą oparte na wcześniejszym okresie, a wynik sprawdzimy na późniejszym okresie, którego algorytm nie używał do dostrajania. Konkretne daty i reguła obsługi braków zostaną zapisane po pobraniu danych. Ze względu na oznaczenie planu Tiingo jako „Internal Use Only” surowe odpowiedzi API nie będą umieszczane w repozytorium; przed publicznym udostępnieniem wyników zespół sprawdzi warunki użycia z prowadzącym. [Warunki i limity Tiingo](https://www.tiingo.com/pricing) · [Warunki użycia API](https://www.tiingo.com/tos/).
+Przed użyciem wybierzemy listę tickerów i dokładne daty, a potem sprawdzimy dostępność każdego symbolu przez endpoint metadanych. Do wyliczania zwrotów planujemy użyć pola `adjClose`, które zawiera korekty splitów i dywidend. Uporządkujemy ceny według dat, sprawdzimy braki i wyrównamy szeregi do wspólnego okresu. Następnie obliczymy dzienne stopy zwrotu, średnie zwroty i macierz kowariancji. Do ewaluacji podzielimy okres chronologicznie. Parametry dobierzemy na wcześniejszych danych, a wynik zmierzymy na późniejszych danych, których nie używaliśmy do strojenia.
+
+Przed pobraniem musimy rozwiązać kwestię licencji. Aktualne warunki Tiingo nie pozwalają planom Starter i Trial na trwałe przechowywanie danych ani wyników pochodnych. Do testowania lub porównywania systemu AI/ML na danych Tiingo wymagana jest licencja Enterprise. Sam plan Power nie wystarczy do takiego benchmarku. Dlatego nie pobierzemy danych z Tiingo, dopóki nie uzyskamy wymaganej licencji. Jeśli jej nie dostaniemy, wybierzemy zbiór z licencją zezwalającą na zapis danych i ewaluację. Szczegóły i źródła są w [notatce o Tiingo](tiingo-data-notes.md), a pełne warunki opisuje [regulamin Tiingo](https://www.tiingo.com/tos/).
 
 ## 4. Rozwiązanie *(A · 10 pkt, B · 5 pkt)*
 
-### Schemat działania
+### Jak będzie działał program
 
-1. Wczytaj ceny z lokalnego pliku lub pobierz je z Tiingo dla wybranych tickerów.
-2. Sprawdź wejście, wyrównaj daty i wylicz dzienne stopy zwrotu.
-3. Oblicz wektor średnich zwrotów oraz macierz kowariancji.
-4. Wygeneruj populację portfeli; każdy osobnik jest wektorem nieujemnych wag, których suma wynosi 1.
-5. Oceń zwrot i ryzyko każdego portfela; wybieraj osobniki do reprodukcji, wykonuj krzyżowanie i mutację, a wagi normalizuj ponownie do sumy 1.
-6. Powtarzaj ewolucję do osiągnięcia limitu pokoleń lub kryterium zatrzymania.
-7. Spośród rozwiązań spełniających limit zwróć portfel o najwyższym oczekiwanym zwrocie. Jeśli nie znaleziono rozwiązania dopuszczalnego, zgłoś ten fakt zamiast zwracać portfel naruszający limit.
-8. Oblicz te same metryki dla portfela 1/N i modelu Markowitza oraz zapisz porównanie.
+1. Wczytamy ceny z lokalnego pliku albo, jeśli licencja na to pozwoli, pobierzemy je z Tiingo.
+2. Sprawdzimy dane, uporządkujemy daty i obliczymy dzienne stopy zwrotu.
+3. Wyliczymy średnie zwroty i macierz kowariancji.
+4. Utworzymy populację portfeli. Każdy portfel będzie miał nieujemne wagi o sumie równej 1.
+5. Ocenimy zwrot i ryzyko każdego portfela. Wybierzemy kandydatów, wykonamy krzyżowanie i mutację, a nowe wagi ponownie przeskalujemy do sumy 1.
+6. Będziemy powtarzać te kroki do osiągnięcia limitu pokoleń albo kryterium zatrzymania.
+7. Zwrócimy portfel o najwyższym oczekiwanym zwrocie spośród tych, które mieszczą się w limicie ryzyka. Jeśli takiego nie znajdziemy, program wyświetli informację o braku rozwiązania.
+8. Te same miary policzymy dla portfela 1/N i modelu Markowitza.
 
-### Model matematyczny i algorytm
+### Model matematyczny
 
-Niech `w` oznacza wektor wag aktywów, `μ` wektor średnich dziennych stóp zwrotu, a `Σ` macierz kowariancji dziennych stóp zwrotu. Dla portfela długiego bez dźwigni wymagamy `wᵢ ≥ 0` oraz `Σᵢ wᵢ = 1`. Dzienny oczekiwany zwrot wynosi `μₚ = μᵀw`, a dzienna wariancja wynosi `σₚ² = wᵀΣw`. Wartości roczne będą wyliczane przez pomnożenie średniego zwrotu przez 252 oraz wariancji przez 252; roczna zmienność to `σₚ,roczna = √(252 · wᵀΣw)`. Są to założenia modelowe, które zostaną zweryfikowane przy implementacji.
+Oznaczmy wektor wag aktywów jako `w`, wektor średnich dziennych stóp zwrotu jako `μ`, a macierz kowariancji dziennych stóp zwrotu jako `Σ`. Dla portfela bez krótkiej sprzedaży wymagamy `wᵢ ≥ 0` oraz `Σᵢ wᵢ = 1`. Dzienny oczekiwany zwrot portfela wynosi `μₚ = μᵀw`, a dzienna wariancja `σₚ² = wᵀΣw`. Roczny zwrot oszacujemy jako średni zwrot dzienny pomnożony przez 252. Roczna zmienność wyniesie `σₚ,roczna = √(252 · wᵀΣw)`. To nasze założenia modelowe, które sprawdzimy podczas implementacji.
 
-Głównym celem jest maksymalizacja oczekiwanego zwrotu `μᵀw` przy ograniczeniu `σₚ,roczna ≤ σmax`, gdzie `σmax` jest limitem użytkownika. Funkcja oceny może stosować karę `F(w) = μᵀw − λ · max(0, σₚ,roczna − σmax)²`, gdzie `λ` jest współczynnikiem kary. Sama kara nie gwarantuje spełnienia ograniczenia, dlatego wybór wyniku końcowego będzie dodatkowo filtrował rozwiązania i dopuszczał wyłącznie portfele spełniające limit.
+Chcemy maksymalizować oczekiwany zwrot `μᵀw` przy warunku `σₚ,roczna ≤ σmax`, gdzie `σmax` oznacza limit użytkownika. W funkcji oceny możemy zastosować karę `F(w) = μᵀw - λ · max(0, σₚ,roczna - σmax)²`, gdzie `λ` jest siłą kary. Sama kara nie gwarantuje spełnienia limitu, dlatego przed zwróceniem wyniku odrzucimy portfele, które go przekraczają.
 
-Chromosom jest wektorem rzeczywistych wag. Populacja początkowa będzie losowana i normalizowana do sumy 1. Planowane operatory to selekcja turniejowa, krzyżowanie ważone i mutacja niewielkich zmian wag z ponowną normalizacją. Do porównania użyjemy modelu Markowitza z tym samym celem i ograniczeniami oraz portfela 1/N.
+Każdy osobnik będzie wektorem wag. Wylosujemy początkową populację i przeskalujemy wagi tak, aby sumowały się do 1. Planujemy selekcję turniejową, krzyżowanie ważone i mutację wag, po której ponownie je znormalizujemy. Wyniki porównamy z modelem Markowitza oraz portfelem równoważonym 1/N.
 
-### Wstępne parametry
+### Parametry na początek
 
-Punkt startowy do strojenia: populacja 100 osobników, maksymalnie 200 pokoleń, turniej selekcyjny o rozmiarze 3, prawdopodobieństwo krzyżowania 0,8, prawdopodobieństwo mutacji 0,1 i ziarno losowości 42. To wartości planowane, a nie wyniki pomiaru; mogą ulec zmianie po eksperymentach. Implementacja ma działać na CPU.
+Do pierwszych prób przyjmiemy populację 100 osobników, maksymalnie 200 pokoleń, turniej o rozmiarze 3, prawdopodobieństwo krzyżowania 0,8, prawdopodobieństwo mutacji 0,1 i ziarno losowości 42. Po pierwszych pomiarach zdecydujemy, czy je zmienić. Program będzie działał na CPU.
 
 ## 5. Ewaluacja *(B · 8 pkt)*
 
-Wyniki nie są jeszcze dostępne — algorytm nie został zaimplementowany, a dane nie zostały pobrane. Wstępne kryterium z karty to: wszystkie zwrócone portfele spełniają limit ryzyka, a mediana oczekiwanego zwrotu GA osiąga co najmniej 95% zwrotu Markowitza na pięciu przypadkach testowych. Porównamy też portfel 1/N. Metryki będą liczone na tym samym okresie testowym i przy identycznych ograniczeniach wag oraz ryzyka.
+Nie mamy jeszcze wyników, bo nie zaczęliśmy implementacji i nie wybraliśmy danych. Nasz cel to zwracać tylko portfele spełniające limit ryzyka oraz osiągnąć medianę zwrotu równą co najmniej 95% wyniku Markowitza w pięciu przypadkach testowych. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
 
 | Przypadek | Punkt odniesienia | Nasze rozwiązanie |
 |---|---|---|
-| 1–5 — do ustalenia po przygotowaniu danych | Markowitz i 1/N — brak wyników | Algorytm genetyczny — brak wyników |
+| 1 do 5, do ustalenia po wyborze danych | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
 
-Wniosek zostanie uzupełniony po eksperymentach; obecnie nie można stwierdzić, czy GA przewyższa prostą metodę bazową ani jak blisko jest rozwiązania Markowitza.
+Po eksperymentach wpiszemy tu wyniki i krótki wniosek. Na razie nie wiemy, czy algorytm genetyczny zbliży się do Markowitza ani czy pobije portfel 1/N.
 
 ## 6. Wymagania niefunkcjonalne *(A · 5 pkt)*
 
-Program ma działać na CPU i dla planowanego koszyka 50–100 spółek celować w czas poniżej 60 sekund na pojedynczy przypadek testowy; jest to cel do pomiaru, nie potwierdzona charakterystyka. Uruchomienie z tym samym ziarnem losowości, danymi i konfiguracją powinno odtworzyć ten sam wynik. System ma walidować m.in. pusty zbiór cen, brak wymaganych kolumn, duplikaty dat, wartości niefinitywne i niewystarczającą liczbę obserwacji. Brak tokenu API lub błąd pobrania danych ma zakończyć się czytelnym komunikatem.
+Program ma działać na CPU. Chcemy, żeby jeden test dla koszyka od 50 do 100 spółek trwał krócej niż 60 sekund, ale nie zmierzyliśmy jeszcze czasu. Przy tych samych danych, ustawieniach i ziarnie losowości program powinien zwracać ten sam wynik. Sprawdzimy, czy wejście zawiera wymagane kolumny, poprawne daty i skończone wartości. Brak danych lub tokenu ma powodować czytelny komunikat zamiast awarii.
 
 ## 7. Ograniczenia *(E · 4 pkt)*
 
-Wynik zależy od historycznego okresu i nie stanowi prognozy ani rekomendacji inwestycyjnej. Model nie uwzględnia obecnie kosztów transakcyjnych, podatków, płynności, ograniczeń sektorowych ani zmian składu indeksów. Średnie zwroty historyczne są niepewne, a algorytm genetyczny może nie znaleźć optimum globalnego; jego wynik zależy od konfiguracji i ziarna. Przy zbyt niskim limicie ryzyka może nie istnieć dopuszczalny portfel. W przyszłości warto uwzględnić koszty transakcji, testy kroczące i dodatkowe ograniczenia inwestycyjne.
+Wynik zależy od wybranego okresu historycznego i nie przewiduje przyszłych cen. Nie uwzględniamy na razie kosztów transakcji, podatków, płynności ani ograniczeń sektorowych. Algorytm genetyczny może nie znaleźć najlepszego możliwego portfela, a przy bardzo niskim limicie może nie znaleźć żadnego dopuszczalnego portfela. Wyniku nie należy traktować jako porady inwestycyjnej. W dalszej pracy możemy dodać koszty transakcji, testy na kolejnych okresach i dodatkowe ograniczenia.
 
 ## 8. Zastosowania w praktyce *(E · 4 pkt)*
 
-Optymalizacja portfela jest stosowana w narzędziach alokacji aktywów dla inwestorów indywidualnych, w procesach zarządzania portfelami funduszy oraz w analizie ryzyka i rebalansowaniu portfeli instytucjonalnych. W takich systemach algorytm pomaga porównywać możliwe wagi aktywów przy zadanych ograniczeniach; ostateczne decyzje wymagają dodatkowych danych i kontroli ryzyka. Ten projekt jest dydaktycznym prototypem i nie jest przeznaczony do podejmowania rzeczywistych decyzji inwestycyjnych.
+Optymalizację portfela wykorzystuje się przy podziale aktywów w narzędziach dla inwestorów, w zarządzaniu portfelami funduszy oraz przy analizie ryzyka i rebalansowaniu portfeli instytucjonalnych. W praktyce takie systemy biorą pod uwagę również koszty i inne ograniczenia. Nasz program będzie prostym prototypem na potrzeby zajęć, a nie narzędziem do podejmowania decyzji inwestycyjnych.
 
 ## 9. Zespół *(D · 8 pkt)*
 
-Zespół na tym etapie pracuje wspólnie nad założeniami projektu. Indywidualny podział ról zostanie ustalony później, wraz z planowaniem sprintów.
+Podzieliliśmy wstępnie odpowiedzialność za projekt. Możemy zmienić ten podział w trakcie pracy. Poniższa tabela pokazuje plan ról, a nie listę ukończonych zadań.
 
-| Osoba | Za co odpowiadała |
+| Osoba | Zakres odpowiedzialności |
 |---|---|
-| Kacper Nowaczyk (31838) | Wspólna praca nad założeniami; indywidualne zadania zostaną ustalone później |
-| Adam Remfeld (31799) | Wspólna praca nad założeniami; indywidualne zadania zostaną ustalone później |
-| Nikodem Boniecki (31865) | Wspólna praca nad założeniami; indywidualne zadania zostaną ustalone później |
+| Kacper Nowaczyk (31838) | Projekt algorytmu genetycznego i jego operatory |
+| Adam Remfeld (31799) | Wybór licencjonowanego źródła, pozyskanie i przygotowanie danych |
+| Nikodem Boniecki (31865) | Punkty odniesienia, ewaluacja, integracja i dokumentacja |
 
 ## 10. Uruchomienie *(C · 4 pkt)*
 
-Repozytorium nie zawiera jeszcze kodu ani `requirements.txt`, dlatego projektu nie da się obecnie uruchomić. Docelowa instrukcja po dodaniu szkieletu będzie zawierać wersję Pythona, konfigurację tokenu `TIINGO_API_TOKEN`, polecenie startowe i lokalizację wyników. Planowany punkt wejścia, zależności i katalog wynikowy nie są jeszcze ustalone.
-
-```text
-Instrukcja uruchomienia zostanie uzupełniona po dodaniu kodu i requirements.txt.
-```
+Nie dodaliśmy jeszcze kodu ani pliku `requirements.txt`, więc na razie nie da się uruchomić programu. W następnym etapie dodamy wersję Pythona, wymagane pakiety, instrukcję konfiguracji źródła danych, polecenie uruchomienia i miejsce zapisu wyników.
 
 ## 11. Narzędzia AI
 
-ChatGPT pomógł uporządkować dokumentację według dostarczonych szablonów i przygotować wstępne sformułowania. Kod projektu, dane i wyniki eksperymentów nie zostały wygenerowane ani zweryfikowane przez narzędzia AI. Zespół powinien sprawdzić treść dokumentów, zasady wykorzystania Tiingo i wymagania prowadzącego przed zatwierdzeniem karty.
+Przy przygotowaniu dokumentów i sprawdzaniu informacji o Tiingo korzystaliśmy z ChatGPT. Nie używaliśmy go do pisania kodu ani tworzenia wyników eksperymentów, bo jeszcze ich nie mamy. Przed oddaniem sprawdzimy treść dokumentów i warunki licencji.

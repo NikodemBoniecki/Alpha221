@@ -1,3 +1,3 @@
-# Karta projektu — wersja polska
+# Karta projektu po polsku
 
-Obowiązującą kartą w języku polskim jest [`karta-tematu.md`](karta-tematu.md) w głównym katalogu repozytorium. Angielskie tłumaczenie znajduje się w [`project_card_en.md`](project_card_en.md).
+Główna karta po polsku znajduje się w [`karta-tematu.md`](karta-tematu.md). Angielskie tłumaczenie jest w [`project_card_en.md`](project_card_en.md).

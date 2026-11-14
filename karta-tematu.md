@@ -1,7 +1,7 @@
 # Karta zgłoszenia tematu projektu
 
-**Grupa:** L2 / L3 · **Zespół:** Z4 · **Data ostatniej zmiany:** 2026-11-14  
-Sztuczna inteligencja — laboratorium · Collegium Da Vinci · rok akad. 2026/2027
+**Grupa:** L2 / L3 | **Zespół:** Z4 | **Data ostatniej zmiany:** 2026-11-14
+Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
 
 Plik `karta-tematu.md` w głównym katalogu repozytorium zespołu. Karta w repozytorium jest wersją obowiązującą.
 
@@ -9,9 +9,9 @@ Plik `karta-tematu.md` w głównym katalogu repozytorium zespołu. Karta w repoz
 
 | Imię i nazwisko | Nr albumu | Rola (wstępna) |
 |---|---:|---|
-| Kacper Nowaczyk | 31838 | Wspólna praca zespołu; role indywidualne do podziału później |
-| Adam Remfeld | 31799 | Wspólna praca zespołu; role indywidualne do podziału później |
-| Nikodem Boniecki | 31865 | Wspólna praca zespołu; role indywidualne do podziału później |
+| Kacper Nowaczyk | 31838 | Projekt algorytmu genetycznego i operatory GA |
+| Adam Remfeld | 31799 | Wybór licencjonowanego źródła, pozyskanie i przygotowanie danych |
+| Nikodem Boniecki | 31865 | Punkty odniesienia, ewaluacja, integracja i dokumentacja |
 
 ## 2. Tytuł
 
@@ -20,7 +20,7 @@ Plik `karta-tematu.md` w głównym katalogu repozytorium zespołu. Karta w repoz
 
 ## 3. Problem (obowiązkowe)
 
-Inwestor indywidualny musi zdecydować, jak podzielić kapitał pomiędzy wybrane akcje, równoważąc oczekiwany zwrot i ryzyko. System przyjmie historyczne ceny dzienne wybranych spółek oraz maksymalny poziom ryzyka wskazany przez użytkownika. Obliczy proponowane udziały spółek w portfelu i oszacuje jego oczekiwany zwrot oraz ryzyko. Projekt koncentruje się na spółkach z obszarów AI, gamedev i półprzewodników.
+Chcemy pomóc inwestorom indywidualnym zdecydować, jak podzielić kapitał między wybrane akcje, uwzględniając oczekiwany zwrot i ryzyko. Program przyjmie historyczne ceny dzienne spółek oraz limit ryzyka podany przez użytkownika. Na tej podstawie zaproponuje udziały spółek w portfelu i oszacuje jego zwrot oraz ryzyko. Na początek skupimy się na firmach z obszarów AI, gamedev i półprzewodników.
 
 ## 4. Dlaczego zwykły algorytm nie wystarczy
 
@@ -28,7 +28,7 @@ Inwestor indywidualny musi zdecydować, jak podzielić kapitał pomiędzy wybran
 - [ ] przepis istnieje, ale jest obliczeniowo za drogi
 - [ ] reguł jest za dużo i zmieniają się w czasie
 
-Uzasadnienie: Podstawowy problem portfelowy można rozwiązać klasyczną optymalizacją średnia-wariancja, dlatego nie zakładamy, że zwykły algorytm jest niewystarczający dla planowanej liczby spółek. Algorytm genetyczny wybieramy jako metodę SI badaną w ramach laboratorium i porównamy go z klasycznym rozwiązaniem oraz prostym portfelem równoważonym.
+Uzasadnienie: Podstawowy problem portfelowy da się rozwiązać klasyczną optymalizacją średnia-wariancja, więc nie twierdzimy, że dla naszej skali zwykły algorytm jest za wolny. Wybraliśmy algorytm genetyczny, aby sprawdzić metodę z zajęć i porównać ją z rozwiązaniem Markowitza oraz portfelem równoważonym.
 
 ## 5. Technologia SI (obowiązkowe)
 
@@ -37,50 +37,50 @@ Uzasadnienie: Podstawowy problem portfelowy można rozwiązać klasyczną optyma
 - [x] algorytm genetyczny
 - [ ] klasyczne uczenie maszynowe
 
-Dlaczego ta technologia pasuje do tego problemu: Algorytm genetyczny może przeszukiwać wiele możliwych zestawów wag portfela i uwzględniać limit ryzyka w ocenie kandydatów. Pozwoli nam porównać jakość heurystycznego przeszukiwania z rozwiązaniem analitycznym Markowitza.
+Dlaczego ta technologia pasuje do tego problemu: Algorytm genetyczny pozwoli nam przeszukać wiele możliwych zestawów wag portfela i uwzględnić limit ryzyka przy ocenie każdego z nich. Zobaczymy, jak jego wyniki wypadają w porównaniu z analitycznym rozwiązaniem Markowitza.
 
 ## 6. Dane (obowiązkowe)
 
 | | |
 |---|---|
-| Źródło (link do konkretnego zbioru, nie do serwisu) | [Tiingo EOD Daily Prices API](https://www.tiingo.com/documentation/end-of-day), endpoint `/tiingo/daily/{ticker}/prices`; lista tickerów i dat do ustalenia |
-| Rozmiar i format | Plan: ok. 50–100 tickerów, do 5 lat danych dziennych; odpowiedzi API w JSON. Faktyczny rozmiar zależy od wybranych spółek i okresu. |
-| Czy dane są już dostępne? | Nie — nie pobraliśmy jeszcze danych ani nie skonfigurowaliśmy tokenu API. |
-| Jeśli nie — plan pozyskania | Założyć konto Tiingo, uzyskać token i pobierać ceny historyczne dla ustalonej listy tickerów. Token będzie przechowywany lokalnie w zmiennej środowiskowej, a pobrane dane nie będą commitowane do repozytorium. |
+| Źródło (link do konkretnego zbioru, nie do serwisu) | Nie wybraliśmy jeszcze konkretnego zbioru. Rozważamy [Tiingo EOD Daily Prices](https://www.tiingo.com/documentation/end-of-day), endpoint `/tiingo/daily/{ticker}/prices`. Musimy ustalić tickery i daty. Opisaliśmy wymagania w [`docs/tiingo-data-notes.md`](docs/tiingo-data-notes.md). |
+| Rozmiar i format | Celujemy w 50 do 100 tickerów i do 5 lat cen dziennych. API zwraca dane w JSON, może też zwracać CSV. Dokładny zakres ustalimy po wyborze źródła i tickerów. |
+| Czy dane są już dostępne? | Nie. Nie wybraliśmy zbioru ani nie pobraliśmy danych. |
+| Plan pozyskania danych | Ustalimy tickery i daty, a potem sprawdzimy dostępność każdego symbolu. Przed pobraniem danych uzyskamy licencję Enterprise Tiingo na ewaluację AI albo wybierzemy inny konkretny zbiór, którego licencja pozwala przechowywać dane i porównywać algorytmy. Starter ani Power nie dają prawa do takiego benchmarku Tiingo. |
 
 ## 7. Stos technologiczny
 
-Planowany jest Python 3, uruchamiany na CPU. Biblioteki: `requests` do komunikacji z API oraz `numpy` i `pandas` do obróbki szeregów cen i obliczeń. Dokładna wersja Pythona i zależności zostaną przypięte przy tworzeniu szkieletu projektu. Dostęp do Tiingo wymaga tokenu; warunki planu Starter określają dane jako przeznaczone do użytku wewnętrznego, dlatego nie będziemy umieszczać surowych danych w repozytorium ani rozpowszechniać ich bez sprawdzenia uprawnień.
+Napiszemy program w Pythonie 3, tak aby działał na CPU. Do pobierania danych możemy użyć `requests`, a do obliczeń `numpy` i `pandas`. Wersję Pythona i zależności ustalimy przy tworzeniu szkieletu. Tiingo wymaga tokenu, ale nie pobierzemy danych bez licencji Enterprise na ich przechowywanie i porównawczą ewaluację AI. Więcej informacji znajduje się w [`docs/tiingo-data-notes.md`](docs/tiingo-data-notes.md).
 
 ## 8. Kryterium sukcesu (obowiązkowe)
 
 - **Metryka:** odsetek zwróconych portfeli spełniających limit rocznej zmienności oraz relacja rocznego oczekiwanego zwrotu GA do wyniku modelu Markowitza przy tym samym limicie.
-- **Próg (liczba):** 100% zwracanych portfeli spełnia limit ryzyka, a mediana relacji zwrotu do Markowitza wynosi co najmniej 95% w 5 ustalonych przypadkach testowych. To wstępny cel do potwierdzenia przed ewaluacją.
+- **Próg (liczba):** każdy zwrócony portfel musi spełniać limit ryzyka. W pięciu przypadkach testowych mediana zwrotu ma wynieść co najmniej 95% wyniku Markowitza. To nasz cel na ewaluację.
 - **Punkt odniesienia** (prosta metoda, z którą porównacie wynik): klasyczny model Markowitza (punkt odniesienia jakości) i portfel równoważony 1/N (prosta metoda bazowa).
 
 ## 9. Zakres minimalny (obowiązkowe)
 
-Program wczyta historyczne ceny dla co najmniej kilku tickerów, obliczy dzienne stopy zwrotu i macierz kowariancji, uruchomi własną implementację algorytmu genetycznego dla długich pozycji o wagach sumujących się do 1 oraz nie zwróci portfela przekraczającego zadany limit ryzyka. Pokaże wagi, szacowany zwrot i ryzyko oraz porówna wynik z portfelem Markowitza i 1/N na tych samych danych.
+Nasz program wczyta historyczne ceny dla kilku tickerów, obliczy dzienne stopy zwrotu i macierz kowariancji, a następnie uruchomi nasz algorytm genetyczny. Dopuścimy tylko długie pozycje, a wagi portfela będą sumować się do 1. Program pokaże wagi, szacowany zwrot i ryzyko, nie zwróci portfela przekraczającego limit i porówna wynik z Markowitzem oraz 1/N na tych samych danych.
 
 ## 10. Zakres opcjonalny
 
-Pobieranie danych bezpośrednio z API, porównanie kilku ustawień parametrów i ziaren losowości, wykres granicy efektywnej oraz prosty interfejs do wyboru tickerów i limitu ryzyka.
+Jeśli wystarczy czasu, dodamy pobieranie danych z API, porównamy kilka ustawień parametrów i ziaren losowości, narysujemy granicę efektywną albo przygotujemy prosty ekran do wyboru tickerów i limitu ryzyka.
 
 ## 11. Repozytorium
 
 Link: https://github.com/NikodemBoniecki/Alpha221
 
-Raporty sprintów: plik `sprints.txt` w głównym katalogu repozytorium.
+Raporty sprintów prowadzimy w pliku `sprints.txt` w głównym katalogu repozytorium.
 
 ## 12. Główne ryzyko i plan awaryjny (obowiązkowe)
 
-Główne ryzyka to brak dostępu do API lub ograniczenia licencyjne oraz brak znalezienia portfela spełniającego zbyt niski limit ryzyka. Najpierw sprawdzimy dostęp do API i warunki wykorzystania danych; jeśli pobranie danych nie będzie możliwe, użyjemy jawnie oznaczonych, syntetycznych danych testowych z ustalonym ziarnem losowości. Gdy limit będzie nieosiągalny dla danego zbioru aktywów, program zgłosi brak rozwiązania zamiast zwracać portfel naruszający ograniczenie.
+Największym ryzykiem jest brak licencji na przechowywanie danych i ewaluację algorytmu. Przed pobraniem danych wybierzemy źródło, którego warunki pozwalają na taki użytek. Jeśli limit ryzyka okaże się zbyt niski, program zgłosi brak dopuszczalnego portfela zamiast zwracać wynik, który łamie ograniczenie. Dane syntetyczne wykorzystamy tylko do sprawdzenia kodu, nie do końcowej ewaluacji.
 
 ---
 
 ## Decyzja prowadzącego
 
-> Wypełnia prowadzący — nie edytujcie tej sekcji.
+> Wypełnia prowadzący. Tej sekcji nie edytujemy.
 
 - [ ] zatwierdzony
 - [ ] do poprawy
@@ -88,4 +88,4 @@ Główne ryzyka to brak dostępu do API lub ograniczenia licencyjne oraz brak zn
 **Uwagi:**
 
 ---
-*Bartosz Lewandowski · bartosz.lewandowski@cdv.pl · Sztuczna inteligencja — laboratorium · Collegium Da Vinci · rok akad. 2026/2027*
+*Bartosz Lewandowski · bartosz.lewandowski@cdv.pl · Sztuczna inteligencja, laboratorium · Collegium Da Vinci · rok akademicki 2026/2027*

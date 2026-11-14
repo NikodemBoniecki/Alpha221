@@ -1,0 +1,17 @@
+=== Sprint 09.11-15.11 ===
+Zobowiązanie z poprzedniego sprintu: brak, to pierwszy raport.
+
+[Kacper Nowaczyk]
+Zrobiłem/zrobiłam:
+W następnym tygodniu zrobię:
+
+[Adam Remfeld]
+Zrobiłem/zrobiłam:
+W następnym tygodniu zrobię:
+
+[Nikodem Boniecki]
+Zrobiłem/zrobiłam: Uzupełniłem kartę tematu według uwag prowadzącego, poprawiłem README po polsku i angielsku oraz przygotowałem dokumentację według szablonu. Sprawdziłem warunki Tiingo i opisałem ograniczenia licencji. Przy redakcji dokumentów i researchu korzystałem z ChatGPT.
+W następnym tygodniu zrobię: Przygotuję instrukcję uruchomienia i dokumentację do szkieletu projektu oraz opiszę ewaluację względem Markowitza i 1/N.
+
+Blokuje nas: trzeba potwierdzić licencję na trwałe przechowywanie danych i benchmark AI albo wybrać alternatywne źródło.
+Zobowiązanie zespołu na następny sprint: ustalić konkretne źródło danych, tickery i zakres dat oraz przygotować uruchamialny szkielet projektu.
