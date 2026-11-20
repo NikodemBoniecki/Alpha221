@@ -2,7 +2,7 @@
 
 Artificial intelligence laboratory project at Collegium Da Vinci, group L2/L3, academic year 2026/2027.
 
-[Polska wersja README](README_PL.md) · [Polish project card](karta-tematu.md) · [Technical documentation](docs/dokumentacja.md)
+[Polska wersja README](README_PL.md) · [Polish project card](project_card_PL.md) · [Technical documentation](docs/dokumentacja.md)
 
 ## Goal
 

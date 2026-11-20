@@ -1,28 +1,39 @@
-=== Sprint update 20.11.2026 ===
+=== Sprint 09.11-15.11.2026 ===
+
+[Kacper Nowaczyk]
+Zrobiłem: Przygotowałem z pomocą ChatGPT szkielet programu w Pythonie: wczytywanie cen z CSV, algorytm genetyczny oraz porównanie z Markowitzem i portfelem 1/N. Uruchomiłem program na danych syntetycznych.
+W następnym tygodniu zrobię: Doprecyzuję działanie selekcji, krzyżowania i mutacji oraz przygotuję algorytm do porównań na wybranym zbiorze danych.
+
+[Adam Remfeld]
+Zrobiłem: Sprawdziłem wymagania dotyczące danych i wybrałem zbiór Huge Stock Market Dataset CC0 oraz wstępny zestaw tickerów NVDA, AMD, MSFT, EA i TTWO. Danych jeszcze nie pobrałem.
+W następnym tygodniu zrobię: Pobiorę pliki dla wybranych tickerów, sprawdzę wspólny zakres dat i przygotuję CSV do pierwszej ewaluacji.
+
+[Nikodem Boniecki]
+Zrobiłem: Uzupełniłem kartę tematu według uwag prowadzącego, poprawiłem README po polsku i angielsku oraz przygotowałem dokumentację według szablonu. Sprawdziłem warunki Tiingo i opisałem ograniczenia licencji. Przy redakcji dokumentów i researchu korzystałem z ChatGPT.
+W następnym tygodniu zrobię: Przygotuję instrukcję uruchomienia i dokumentację do szkieletu projektu oraz opiszę ewaluację względem Markowitza i 1/N.
+
+=== Sprint 20.11.2026 ===
 
 Zrealizowane:
-- Wybrano Yahoo Finance przez yfinance jako źródło danych do zamkniętego projektu edukacyjnego.
-- Zweryfikowano 15 spółek, ETF SPY, ETFBW20TR.WA oraz kursy USDPLN=X i EURUSD=X.
-- Przygotowano pobieranie, walidację i konwersję cen do USD; wygenerowano lokalne szeregi dzienne i tygodniowe, raport audytowy oraz manifest.
-- Potwierdzono dwuletni zrzut: 485 wspólnych obserwacji dziennych i 105 cen tygodniowych (104 okresy zwrotu).
-- Pobrano i sprawdzono historię siedmioletnią: 1703 wspólne obserwacje dzienne i 366 kolejnych cen tygodniowych dla 17 instrumentów.
-- Ustalono i wdrożono ograniczenia portfela: 80% spółki / 20% ETF-y; GA wybiera dokładnie 10 z 15 spółek, każda z wagą 1–20%; ETF-y mają minimum 1% każdy.
-- Wdrożono tygodniowy bootstrap blokowy dla dodatniego zwrotu USD w horyzoncie 26 tygodni. Główny blok ma 4 tygodnie; sprawdzana jest wrażliwość dla bloków 2 i 8 tygodni. GA używa 1000 ścieżek przy optymalizacji, raport 10000.
-- Markowitz używa budżetów 80/20, limitu 20% na spółkę i minimum 1% na ETF, bez wymogu dokładnie 10 spółek. 1/N dzieli równo 80% między 15 spółek i 20% między dwa ETF-y.
-- Wdrożono pięcioletni test kroczący: 104 tygodnie treningu, 26 tygodni testu i ponowne wyznaczanie wag co pół roku.
-- Wykonano pełne przeszukanie 3003 zestawów 10 spółek. Wagi każdego zestawu wyznacza Markowitz, a wykonalne wyniki są porównywane bootstrapowym prawdopodobieństwem.
-- Sprawdzono 22-procentowy limit ryzyka na dwuletnim oknie: wszystkie 3003 zestawy dały wykonalne rozwiązanie; najlepszy osiągnął 98,93% szacowanej szansy dodatniego zwrotu w 6 miesięcy.
-- Uruchomiono test kroczący na 10 okresach półrocznych i zweryfikowano 30 wierszy wyników dla GA, Markowitza i 1/N oraz ograniczenia wag portfeli.
-- Zaktualizowano dokumentację polską i angielską, README oraz karty projektu; usunięto nieaktualne instrukcje Kaggle/Tiingo i stare moduły przygotowania danych.
-
-Użycie narzędzi AI:
-- Wcześniejszy raport sprintowy odnotowywał użycie ChatGPT przez zespół. Bieżące zmiany kodu i dokumentacji przygotowano z pomocą Codex na polecenie Nikodema Bonieckiego.
+- Ustalono Yahoo Finance przez yfinance jako źródło dziennych danych do zamkniętego projektu edukacyjnego; dane pozostają lokalne i nie są publikowane w repozytorium.
+- Zweryfikowano koszyk 15 spółek oraz ETF-y SPY i ETFBW20TR.WA. Ceny historyczne przeliczane są na USD z użyciem kursów z odpowiadających im dat.
+- Zaimplementowano pobieranie, walidację, audyt i eksport danych dziennych oraz tygodniowych. Siedmioletni zbiór przeszedł kontrolę: 1703 wspólne obserwacje dzienne i 366 kolejnych tygodniowych cen dla 17 instrumentów.
+- Ustalono limity: 80% portfela na spółki i 20% na ETF-y; GA wybiera dokładnie 10 z 15 spółek, z wagą 1–20% portfela dla każdej wybranej spółki. Każdy ETF ma minimum 1%.
+- Markowitz używa tych samych budżetów 80/20, limitu 20% na spółkę i minimum 1% na ETF, bez wymogu wyboru dokładnie 10 spółek. Portfel 1/N dzieli równo część akcyjną między 15 spółek i indeksową między dwa ETF-y.
+- Zaimplementowano tygodniowy bootstrap blokowy do szacowania prawdopodobieństwa dodatniego zwrotu w USD w horyzoncie 26 tygodni. Główny blok ma 4 tygodnie; sprawdzana jest wrażliwość dla długości 2 i 8 tygodni.
+- Zaimplementowano pięcioletni test kroczący: 104 tygodnie treningu, 26 tygodni oceny i ponowne wyznaczanie wag co pół roku.
+- Zaimplementowano pełne przeszukanie 3003 zestawów po 10 spółek jako punkt kontrolny. Wagi w każdym zestawie wyznacza Markowitz, a zestawy są oceniane bootstrapowym prawdopodobieństwem; nie jest to globalne optimum wszystkich wag dla każdego zestawu.
+- Uruchomiono test kroczący przy limicie ryzyka 22% oraz sprawdzono ograniczenia wag i wyniki GA, Markowitza i 1/N. Wstępne wyniki i ich ograniczenia opisano w dokumentacji.
+- Zaktualizowano README, dokumentację i karty projektu; usunięto nieaktualne instrukcje i moduły.
 
 Wyniki wstępne:
-- Test pięcioletni przy limicie 22%: GA 204,83% łącznego zwrotu, Markowitz 319,40%, 1/N 177,29%; każda metoda miała 9 dodatnich okresów z 10.
-- Wyniki są historyczne, obejmują tylko 10 okresów półrocznych i nie uwzględniają kosztów transakcji ani rebalansowania. Nie stanowią dowodu przewagi żadnej metody.
-- Pełne przeszukanie składów wykonano osobno na dwuletnim oknie treningowym; jego wagi wewnątrz zestawu maksymalizują oczekiwany zwrot Markowitza, a nie bootstrapowe prawdopodobieństwo.
+- Pięcioletni test kroczący przy limicie 22% obejmował 10 okresów półrocznych. Łączny zwrot historyczny: GA 204,83%, Markowitz 319,40%, 1/N 177,29%; każda metoda miała 9 dodatnich okresów z 10.
+- Wyniki nie uwzględniają kosztów transakcyjnych ani rebalansowania i nie dowodzą przewagi żadnej metody.
+- W osobnym dwuletnim oknie treningowym wszystkie 3003 zestawy były wykonalne; najlepszy uzyskał 98,93% oszacowanego prawdopodobieństwa dodatniego zwrotu w 6 miesięcy. To wynik in-sample, zależny od założeń i liczby ścieżek bootstrapu.
+
+Użycie narzędzi AI:
+- Wcześniejsze prace zespołu odnotowywały użycie ChatGPT. Bieżące zmiany kodu i dokumentacji przygotowano z pomocą Codex na polecenie Nikodema Bonieckiego.
 
 Do zrobienia:
-- Przeliczać kwotę inwestycji w USD na możliwe do kupienia jednostki aktywów.
-- Opcjonalnie przygotować wariant przeszukiwania, który optymalizuje bootstrapowe prawdopodobieństwo bezpośrednio wewnątrz każdego składu.
+- Rozważyć przeliczenie kwoty inwestycji USD na liczbę możliwych do kupienia jednostek z uwzględnieniem ograniczeń rynku.
+- Opcjonalnie porównać pełne przeszukanie składów z bezpośrednią optymalizacją bootstrapowego prawdopodobieństwa w obrębie każdego składu.

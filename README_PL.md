@@ -2,7 +2,7 @@
 
 Projekt na laboratorium sztucznej inteligencji, Collegium Da Vinci, grupa L2/L3, rok akademicki 2026/2027.
 
-[English README](README.md) · [Karta tematu](karta-tematu.md) · [Dokumentacja techniczna](docs/dokumentacja.md)
+[English README](README.md) · [Karta tematu](project_card_PL.md) · [Dokumentacja techniczna](docs/dokumentacja.md)
 
 ## Cel
 
