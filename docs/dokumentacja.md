@@ -1,109 +1,221 @@
-# Optymalizator portfela inwestycyjnego algorytmem genetycznym przy ograniczeniu ryzyka
+# Dokumentacja projektu Alpha221
 
-**Grupa:** L2 / L3 | **Zespół:** Z4 | **Repozytorium:** https://github.com/NikodemBoniecki/Alpha221
-Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
+**Projekt:** Optymalizator portfela inwestycyjnego algorytmem genetycznym przy ograniczeniu ryzyka
+**Kurs:** Sztuczna inteligencja, laboratorium | Collegium Da Vinci | 2026/2027
+**Stan tej dokumentacji:** 2026-11-20
 
-Mamy uruchamialną wersję konsolową. Działa na danych syntetycznych albo na cenach z plików CSV. Wybraliśmy rynkowy zbiór danych, ale jeszcze go nie pobraliśmy i nie mamy wyników eksperymentów.
+## 1. Cel i zakres
 
-## 1. Problem *(rubryka A)*
+Alpha221 jest konsolowym prototypem do porównywania algorytmu genetycznego (GA), optymalizacji Markowitza i portfela równoważonego 1/N. Docelowo ma maksymalizować szacowane prawdopodobieństwo dodatniego skumulowanego zwrotu portfela w horyzoncie 6 miesięcy, przy podanym przez użytkownika limicie rocznej zmienności.
 
-Chcemy pomóc inwestorom indywidualnym zdecydować, jak podzielić kapitał między wybrane akcje, uwzględniając oczekiwany zwrot i ryzyko. Program przyjmie historyczne ceny dzienne spółek oraz limit ryzyka podany przez użytkownika. Następnie zaproponuje wagi spółek w portfelu i oszacuje jego zwrot oraz ryzyko. Na początek skupimy się na firmach z obszarów AI, gamedev i półprzewodników.
+Koszyk ma pulę 15 spółek oraz dwa ETF-y: SPY na S&P 500 i ETFBW20TR.WA na WIG20TR. GA wybiera dokładnie 10 spółek. Na spółki przypada 80% portfela, na ETF-y 20%. Waga każdej wybranej spółki wynosi co najmniej 1% i najwyżej 20% całego portfela; każdy ETF otrzymuje co najmniej 1%. Markowitz stosuje te same budżety, limit 20% na spółkę i minima ETF-ów, ale może użyć dowolnej liczby spółek z puli. Portfel 1/N dzieli 80% równo między wszystkie 15 spółek oraz 20% po równo między dwa ETF-y. Ograniczenia te są zaimplementowane w optymalizatorach dla docelowego koszyka.
 
-## 2. Dlaczego SI i dlaczego ta technika *(B · 7 pkt)*
+Projekt jest pracą edukacyjną i nie służy do podejmowania decyzji inwestycyjnych.
 
-Podstawowy problem portfelowy można rozwiązać klasyczną optymalizacją średnia-wariancja, więc nie zakładamy, że zwykły algorytm będzie za wolny. Wybraliśmy algorytm genetyczny, bo jest tematem z laboratorium i pozwoli nam porównać przeszukiwanie heurystyczne z rozwiązaniem Markowitza. Sieć neuronowa nie pasuje do naszego celu, bo nie prognozujemy etykiet ani cen. System ekspertowy wymagałby reguł, których nie mamy.
+## 2. Koszyk aktywów
 
-## 3. Dane *(B · 8 pkt)*
-
-Wybraliśmy [Huge Stock Market Dataset, wersję 3](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs). Kaggle podaje, że zbiór zawiera dzienne pliki CSV dla akcji i ETF-ów z USA, ma licencję CC0 i zajmuje około 809 MB. Opis zbioru podaje, że ceny są skorygowane o splity i dywidendy. Nie pobraliśmy jeszcze archiwum.
-
-Do pierwszej ewaluacji planujemy wykorzystać NVDA, AMD, MSFT, EA i TTWO w okresie od 2012-01-03 do 2017-01-03. Po pobraniu sprawdzimy, czy każdy ticker ma wspólny zakres dat. Z plików wybierzemy datę i cenę zamknięcia, ułożymy serie w jeden szeroki CSV i sprawdzimy braki przed obliczeniem dziennych stóp zwrotu, średnich zwrotów i macierzy kowariancji. Dokładną liczbę wierszy wpiszemy po przygotowaniu pliku. Do ewaluacji użyjemy tych samych danych i ograniczeń dla GA, Markowitza oraz 1/N.
-
-Tiingo nie jest naszym wybranym źródłem. Sprawdziliśmy jego warunki i zapisaliśmy je w [notatce o Tiingo](tiingo-data-notes.md). Nie pobierzemy stamtąd danych bez licencji pozwalającej na ich przechowywanie i ewaluację algorytmu.
-
-## 4. Rozwiązanie *(A · 10 pkt, B · 5 pkt)*
-
-### Jak będzie działał program
-
-1. Domyślnie program tworzy przykładowe dane syntetyczne. Dla ewaluacji przygotujemy wspólny plik CSV z plików tickerów z Kaggle.
-2. Sprawdzimy dane, uporządkujemy daty i obliczymy dzienne stopy zwrotu.
-3. Wyliczymy średnie zwroty i macierz kowariancji.
-4. Utworzymy populację portfeli. Każdy portfel będzie miał nieujemne wagi o sumie równej 1.
-5. Ocenimy zwrot i ryzyko każdego portfela. Wybierzemy kandydatów, wykonamy krzyżowanie i mutację, a nowe wagi ponownie przeskalujemy do sumy 1.
-6. Będziemy powtarzać te kroki do osiągnięcia limitu pokoleń albo kryterium zatrzymania.
-7. Zwrócimy portfel o najwyższym oczekiwanym zwrocie spośród tych, które mieszczą się w limicie ryzyka. Jeśli takiego nie znajdziemy, program wyświetli informację o braku rozwiązania.
-8. Te same miary policzymy dla portfela 1/N i modelu Markowitza.
-
-### Model matematyczny
-
-Oznaczmy wektor wag aktywów jako `w`, wektor średnich dziennych stóp zwrotu jako `μ`, a macierz kowariancji dziennych stóp zwrotu jako `Σ`. Dla portfela bez krótkiej sprzedaży wymagamy `wᵢ ≥ 0` oraz `Σᵢ wᵢ = 1`. Dzienny oczekiwany zwrot portfela wynosi `μₚ = μᵀw`, a dzienna wariancja `σₚ² = wᵀΣw`. Roczny zwrot oszacujemy jako średni zwrot dzienny pomnożony przez 252. Roczna zmienność wyniesie `σₚ,roczna = √(252 · wᵀΣw)`. To nasze założenia modelowe, które sprawdzimy podczas implementacji.
-
-Chcemy maksymalizować oczekiwany zwrot `μᵀw` przy warunku `σₚ,roczna ≤ σmax`, gdzie `σmax` oznacza limit użytkownika. W obecnej implementacji dopuszczalne portfele są oceniane ich rocznym zwrotem. Portfele przekraczające limit otrzymują karę `-1000 - 1000 · (σₚ,roczna - σmax)`. Algorytm zapamiętuje i zwraca wyłącznie rozwiązanie spełniające limit.
-
-Każdy osobnik jest wektorem wag. Program losuje początkową populację i normalizuje wagi tak, aby sumowały się do 1. Używa selekcji turniejowej, krzyżowania ważonego i mutacji wag, po której ponownie je normalizuje. Wyniki porównuje z modelem Markowitza oraz portfelem równoważonym 1/N.
-
-### Parametry na początek
-
-Do pierwszych prób przyjmiemy populację 100 osobników, maksymalnie 200 pokoleń, turniej o rozmiarze 3, prawdopodobieństwo krzyżowania 0,8, prawdopodobieństwo mutacji 0,1 i ziarno losowości 42. Po pierwszych pomiarach zdecydujemy, czy je zmienić. Program będzie działał na CPU.
-
-## 5. Ewaluacja *(B · 8 pkt)*
-
-Nie mamy jeszcze wyników na danych rynkowych. Program można uruchomić na danych syntetycznych, ale służą one tylko do sprawdzenia działania i nie będą traktowane jako wynik projektu. Tryb `--yearly` porównuje metody osobno dla każdego roku z danych wejściowych i podaje medianę relacji zwrotu GA do Markowitza, jeśli zwroty Markowitza są dodatnie. Nasz cel to zwracać wyłącznie portfele GA spełniające limit ryzyka oraz uzyskać medianę pięciu rocznych relacji GA do Markowitza co najmniej 0,95. Przypadki obejmą lata 2012-2016. Porównamy też wyniki z portfelem 1/N. Wszystkie metody sprawdzimy na tych samych danych i przy tych samych ograniczeniach.
-
-| Przypadek | Punkt odniesienia | Nasze rozwiązanie |
+| Ticker | Aktywo | Waluta notowania |
 |---|---|---|
-| 2012 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
-| 2013 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
-| 2014 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
-| 2015 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
-| 2016 | Markowitz i 1/N, brak wyników | Algorytm genetyczny, brak wyników |
+| AAPL | Apple | USD |
+| MSFT | Microsoft | USD |
+| NVDA | NVIDIA | USD |
+| JPM | JPMorgan Chase | USD |
+| KO | Coca-Cola | USD |
+| CDR.WA | CD Projekt | PLN |
+| TTWO | Take-Two Interactive | USD |
+| UBI.PA | Ubisoft | EUR |
+| AMD | Advanced Micro Devices | USD |
+| ASML | ASML | USD |
+| XTB.WA | XTB | PLN |
+| PKN.WA | ORLEN | PLN |
+| ASB.WA | ASBISc Enterprises | PLN |
+| CBF.WA | cyber_Folks | PLN |
+| TSLA | Tesla | USD |
+| SPY | SPDR S&P 500 ETF | USD |
+| ETFBW20TR.WA | BETA ETF WIG20TR | PLN |
 
-Po eksperymentach wpiszemy tu wyniki i krótki wniosek. Na razie nie wiemy, czy algorytm genetyczny zbliży się do Markowitza ani czy pobije portfel 1/N.
+Koszyk uwzględnia sześć instrumentów w PLN, jeden w EUR i dziesięć w USD. Kurs USDPLN=X jest podany jako PLN za 1 USD; EURUSD=X jako USD za 1 EUR.
 
-## 6. Wymagania niefunkcjonalne *(A · 5 pkt)*
+## 3. Źródło i zasady użycia danych
 
-Program działa na CPU. Zakładamy, że jeden test dla wybranego koszyka pięciu spółek potrwa krócej niż 60 sekund, ale nie zmierzyliśmy jeszcze czasu na danych rynkowych. Przy tych samych danych, ustawieniach i ziarnie losowości algorytm genetyczny zwraca ten sam wynik. Program sprawdza wymagane kolumny, poprawne daty i wartości cen. Brak pliku albo niepoprawne dane powodują czytelny komunikat.
+Dane są pobierane z Yahoo Finance przez bibliotekę yfinance. yfinance jest nieoficjalnym narzędziem społecznościowym, nie jest powiązane z Yahoo i opisuje swoje zastosowanie jako badawcze i edukacyjne. Dokumentacja biblioteki wskazuje też, że Yahoo Finance API jest przeznaczone do użytku osobistego. Yahoo oznacza udostępniane informacje jako informacyjne i zabrania ich redystrybucji. Przed innym niż zamknięty pokazem edukacyjnym należy ponownie sprawdzić warunki źródła. [Dokumentacja yfinance](https://github.com/ranaroussi/yfinance/blob/main/README.md) · [Warunki Yahoo](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html) · [Źródła i opóźnienia notowań](https://help.yahoo.com/kb/finance/article-exchanges-data-delays-sln2310.html)
 
-## 7. Ograniczenia *(E · 4 pkt)*
+Projekt nie używa tokenu API. Pobranie danych nie ma gwarantowanego SLA ani opublikowanego w tym projekcie limitu zapytań. Dostępność i opóźnienie zależą od rynku oraz dostawcy danych.
 
-Wynik zależy od wybranego okresu historycznego i nie przewiduje przyszłych cen. Zbiór kończy się w 2017 roku, więc nie opisuje obecnego rynku i może zawierać błąd przeżywalności. Nie uwzględniamy na razie kosztów transakcji, podatków, płynności ani ograniczeń sektorowych. Algorytm genetyczny może nie znaleźć najlepszego możliwego portfela, a przy bardzo niskim limicie może nie znaleźć żadnego dopuszczalnego portfela. Wyniku nie należy traktować jako porady inwestycyjnej.
+Zrzuty cen są ignorowane przez Git i nie powinny być commitowane ani redystrybuowane. Do odtworzenia należy uruchomić pobieracz lokalnie.
 
-## 8. Zastosowania w praktyce *(E · 4 pkt)*
+## 4. Pobieranie i przygotowanie cen
 
-Optymalizację portfela wykorzystuje się przy podziale aktywów w narzędziach dla inwestorów, w zarządzaniu portfelami funduszy oraz przy analizie ryzyka i rebalansowaniu portfeli instytucjonalnych. W praktyce takie systemy biorą pod uwagę również koszty i inne ograniczenia. Nasz program będzie prostym prototypem na potrzeby zajęć, a nie narzędziem do podejmowania decyzji inwestycyjnych.
+Pobieracz znajduje się w alpha221/market_data.py. Polecenie python -m alpha221.market_data pobiera okres 2y dla wszystkich 17 instrumentów, USDPLN=X i EURUSD=X.
 
-## 9. Zespół *(D · 8 pkt)*
+1. Ceny skorygowane o działania korporacyjne są pobierane jako Adj Close. Dla najnowszego kursu jednostkowego pobierane jest Close.
+2. Ceny w PLN są dzielone przez USDPLN=X. Ceny w EUR są mnożone przez EURUSD=X. USD pozostaje bez zmiany.
+3. Kurs FX jest dopasowywany do sesji instrumentu. Przy braku kursu z dokładnej daty wolno użyć ostatniego kursu z wcześniejszej daty. Ceny akcji i ETF-ów nie są uzupełniane.
+4. Zbiór dzienny zawiera tylko daty, na które każdy instrument ma rzeczywiste notowanie. Brak kolumny, pusta seria, niepoprawne ceny lub zbyt mała liczba wspólnych dat zatrzymują pobieranie z błędem; ticker nie jest po cichu usuwany.
+5. Zbiór tygodniowy wybiera ostatnią kompletną wspólną sesję w każdym tygodniu kończącym się w piątek. Etykietą wiersza jest piątek kończący tydzień, nawet jeśli ostatnia wspólna sesja w tym tygodniu wypadła wcześniej.
 
-Podzieliliśmy wstępnie odpowiedzialność za projekt. Możemy zmienić ten podział w trakcie pracy. Poniższa tabela pokazuje plan ról, a nie listę ukończonych zadań.
+Zweryfikowany 2026-11-20 zrzut operacyjny zawiera 485 dziennych cen wspólnych dla całego koszyka od 2024-11-21 do 2026-11-20 oraz 105 tygodniowych cen od 2024-11-22 do 2026-11-20. Daje to 484 dzienne i 104 tygodniowe okresy zwrotu. W tym pobraniu wszystkie wymagane kursy FX były dostępne dokładnie w datach sesji instrumentów. Osobna kontrola dostępności historii 7-letniej wykazała 1703 wspólne obserwacje dzienne i 366 tygodniowych cen od 2019-11-21 do 2026-11-20. Ta kontrola nie zmienia domyślnego dwuletniego pobierania.
 
-| Osoba | Zakres odpowiedzialności |
+Zbiór siedmioletni został następnie pobrany i zapisany lokalnie do `data/raw/`. Kontrola pliku tygodniowego potwierdziła 366 wierszy cen i 365 kompletnych wektorów zwrotu dla 17 instrumentów, regularny odstęp 7 dni, brak pustych lub niedodatnich cen oraz maksymalny wiek użytego kursu FX równy 0 dni. Protokół wag wymaga 104 tygodniowych zwrotów treningowych i 260 tygodniowych zwrotów testowych, razem 364; bieżący zbiór ma zapas jednego okresu. Dane pozostają ignorowane przez Git i można je odtworzyć poleceniem:
+
+~~~bash
+python -m alpha221.market_data \
+  --period 7y \
+  --minimum-common-rows 1600 \
+  --prices-output data/raw/prices_7y_usd.csv \
+  --weekly-output data/raw/prices_weekly_7y_usd.csv \
+  --latest-output data/raw/latest_prices_7y_usd.csv \
+  --audit-output results/market_data_audit_7y.csv \
+  --manifest-output data/raw/market_data_manifest_7y.json
+~~~
+
+## 5. Pliki danych
+
+Pobieracz tworzy lokalnie:
+
+| Plik | Zawartość |
 |---|---|
-| Kacper Nowaczyk (31838) | Projekt algorytmu genetycznego i jego operatory |
-| Adam Remfeld (31799) | Wybór licencjonowanego źródła, pozyskanie i przygotowanie danych |
-| Nikodem Boniecki (31865) | Punkty odniesienia, ewaluacja, integracja i dokumentacja |
+| data/prices.csv | Dzienny Adj Close w USD, tylko kompletne wspólne sesje |
+| data/prices_weekly_usd.csv | Tygodniowe ceny w USD, etykiety piątków kończących tygodnie |
+| data/raw/prices_7y_usd.csv | Siedmioletni dzienny zbiór do testu kroczącego |
+| data/raw/prices_weekly_7y_usd.csv | Siedmioletni tygodniowy zbiór do testu kroczącego |
+| data/latest_prices_usd.csv | Ostatnie Close w USD dla każdego instrumentu, do wyceny jednostkowej |
+| results/market_data_audit.csv | Waluta notowania, liczba i zakres obserwacji, najnowsza cena w USD, wykorzystany FX |
+| data/market_data_manifest.json | Czas pobrania, zakres, źródło, formuły walutowe i liczba obserwacji |
 
-## 10. Uruchomienie *(C · 4 pkt)*
+Katalogi data z wygenerowanymi cenami oraz results są ignorowane przez Git. Liczby z tego zrzutu są kontrolą kompletności, a nie wynikami optymalizacji.
 
-Wymagany jest Python 3.10 lub nowszy. Zależności instalujemy poleceniem `python -m pip install -r requirements.txt`. Program uruchamiamy z głównego katalogu repozytorium:
+## 6. Częstotliwość i annualizacja
 
-```bash
-python -m alpha221
-```
+Do głównego porównania przyjęta jest częstotliwość tygodniowa. Wyrównywanie dziennych notowań rynków z różnymi kalendarzami przez wypełnianie cen może wprowadzać sztuczne zerowe zwroty. Tygodniowa próbka używa wspólnej sesji z każdego tygodnia i nie wstawia takich cen. Różne godziny zamknięcia giełd nadal oznaczają, że ceny z tej samej daty nie są wyceną z tej samej chwili; tygodniowa próbka ogranicza problem świąt, ale go całkowicie nie usuwa. [Badanie synchronizacji zwrotów międzynarodowych rynków](https://www.sciencedirect.com/science/article/pii/S037842660000159X)
 
-To polecenie używa przykładowych danych syntetycznych. Porównanie algorytmu genetycznego, Markowitza i portfela 1/N zapisuje do `results/comparison.csv`. Własne ceny można podać w pliku CSV, w którym pierwsza kolumna to `date`, a kolejne kolumny zawierają ceny zamknięcia dla tickerów. Pliki z Kaggle można przygotować poleceniem:
+Wyniki tygodniowe są annualizowane przez 52 okresy: średni zwrot tygodniowy mnożony jest przez 52, a wariancja przez 52. Zmienność roczna to pierwiastek z annualizowanej wariancji. Dla częstotliwości dziennej stosowane jest 252. CLI przyjmuje jawny parametr --frequency daily albo --frequency weekly i sprawdza odstępy dat. Nie wolno używać weekly cen z annualizacją daily.
 
-```bash
-python -m alpha221.prepare --source data/raw/Stocks --tickers NVDA AMD MSFT EA TTWO --start 2012-01-03 --end 2017-01-03 --output data/prices.csv
-```
+## 7. Obliczenia
 
-Porównanie dla każdego roku uruchomimy poleceniem:
+Dla ceny skorygowanej w USD P(i,t) prosty zwrot instrumentu i w okresie t wynosi:
 
-```bash
-python -m alpha221 --input data/prices.csv --yearly --risk-limit 0.25
-```
+~~~text
+r(i,t) = P(i,t) / P(i,t-1) - 1
+~~~
 
-Program nie pobiera danych z internetu i nie wymaga tokenu. Wybrany zbiór pobierzemy osobno z Kaggle i przygotujemy jako CSV opisany wyżej. Tryb roczny zwraca medianę relacji tylko wtedy, gdy Markowitz ma dodatni zwrot we wszystkich przypadkach i dostępnych jest dokładnie pięć lat.
+Z tych zwrotów liczone są średnie zwroty μ oraz macierz kowariancji Σ. Dla wag portfela w i liczby okresów w roku A roczny zwrot szacowany jest jako A · μᵀw, a roczna zmienność jako √(A · wᵀΣw). W tej wersji A wynosi 52 dla tygodni i 252 dla sesji dziennych. Zwrot jest estymacją średniej historycznej, nie prognozą.
 
-## 11. Narzędzia AI
+## 8. Obecne modele
 
-Przy przygotowaniu dokumentów, sprawdzaniu informacji o Tiingo, wyborze danych i kodu korzystaliśmy z ChatGPT. Nie używaliśmy go do tworzenia wyników eksperymentów. Przed oddaniem sprawdzimy kod, dokumenty i dane.
+### Uzgodniony model docelowy
+
+GA ma wybierać dokładnie 10 z 15 spółek, każda z wagą 1–20% portfela, tak aby suma wag spółek wynosiła 80%. Dwa ETF-y mają łącznie 20%, a każdy co najmniej 1%. Limit ryzyka jest twardym ograniczeniem rocznej zmienności. Funkcją celu ma być prawdopodobieństwo dodatniego skumulowanego zwrotu w następnych 26 tygodniach (około 6 miesięcy), wyrażone w USD.
+
+Markowitz używa tych samych budżetów 80/20, limitu 20% na spółkę oraz minimum 1% na każdy ETF, ale nie ma obowiązku trzymać dokładnie 10 spółek. Jako klasyczny punkt odniesienia maksymalizuje oczekiwany zwrot przy limicie zmienności. 1/N jest stałym punktem odniesienia: 80%/15 na każdą spółkę i 10% na każdy ETF. To porównuje trzy strategie z tymi samymi danymi i budżetami, ale nie izoluje wyłącznie jakości algorytmów, ponieważ cel GA (prawdopodobieństwo 6-miesięcznego zysku) różni się od celu Markowitza (oczekiwany zwrot). Wszystkie metody są oceniane wspólnymi miarami poza próbą. Dodatkowo zaimplementowano pełne przejście po 3003 podzbiorach 10 spółek jako kontrolę GA.
+
+### Wybór wag i test poza próbą
+
+Wagi są szacowane na kroczącym oknie 2 lat tygodniowych danych. Test poza próbą obejmuje 5 lat historii; co 26 tygodni modele wyznaczają wagi wyłącznie na danych dostępnych do tej daty, po czym portfel jest oceniany na następnych 26 tygodniach. Oznacza to 10 kolejnych okresów testowych. Potrzeba około 7 lat wspólnych danych; kontrola z 2026-11-20 potwierdziła 366 tygodniowych cen (365 okresów zwrotu), co wystarcza do takiego protokołu.
+
+Wynik testu ma obejmować skumulowany zwrot w USD, udział dodatnich okresów 6-miesięcznych, zrealizowaną zmienność oraz zgodność z limitem ryzyka dla GA, Markowitza i 1/N. Zbioru testowego nie wolno wykorzystywać do doboru wag ani ustawień algorytmu.
+
+Estymator prawdopodobieństwa używa ruchomego bootstrapu blokowego ze wspólnych wektorów tygodniowych zwrotów. Dla każdego scenariusza losowane są kolejne bloki, z których składana jest ścieżka 26 tygodni; wynik portfela jest kapitalizowany tydzień po tygodniu. Długość 4 tygodni jest głównym ustawieniem, a bloki 2 i 8 tygodni służą do analizy wrażliwości. GA używa 1000 scenariuszy podczas optymalizacji, a raport porównawczy 10 000. Wynik jest estymacją historyczną, nie gwarancją.
+
+### Pełne przeszukanie podzbiorów
+
+Opcja `--exhaustive-subsets` enumeruje wszystkie 3003 zestawy 10 spółek. Dla każdego zestawu SLSQP dobiera wagi według klasycznego celu Markowitza (maksymalny oczekiwany zwrot przy limicie ryzyka) z tym samym podziałem 80/20, limitami 1–20% dla wybranych spółek i minimum 1% dla ETF-ów. Następnie każdy wykonalny wynik jest oceniany tym samym bootstrapowym prawdopodobieństwem dodatniego zwrotu co GA. Raportuje liczbę rozpatrzonych i wykonalnych zestawów.
+
+To pełne przeszukanie **składu**, ale nie globalne maksimum bootstrapowego prawdopodobieństwa po wszystkich możliwych wagach w każdym zestawie: wagi wewnątrz zestawu wyznacza Markowitz. Traktujemy wynik jako punkt kontrolny dla selekcji, nie jako matematyczną granicę celu GA. Opcja działa na pojedynczym tygodniowym oknie treningowym, nie w pięcioletnim teście kroczącym.
+
+### Algorytm genetyczny
+
+Chromosom zawiera po jednej wadze dla każdego z 17 aktywów. Populacja początkowa losowana jest z rozkładu Dirichleta. Wagi są nieujemne i normalizowane do sumy 1. Algorytm używa selekcji turniejowej, krzyżowania ważonego i mutacji.
+
+Na wejściu tygodniowym GA maksymalizuje estymowane prawdopodobieństwo dodatniego skumulowanego zwrotu w 26 tygodniach. Fitness używa bootstrapu blokowego ze wspólnych tygodniowych wektorów zwrotu, z głównym blokiem długości 4 tygodni i 1000 scenariuszy podczas optymalizacji. Roczny limit zmienności jest twardym ograniczeniem; najlepszy znaleziony portfel musi go spełnić. Dla raportu prawdopodobieństwa każdej metody CLI używa 10 000 scenariuszy i podaje analizę wrażliwości dla bloków 2 i 8 tygodni. Dzienny tryb demonstracyjny nadal maksymalizuje estymowany zwrot, ponieważ cel 26-tygodniowy jest zdefiniowany dla tygodniowych zwrotów.
+
+Chromosom ma 17 genów. Naprawa chromosomu wybiera 10 spółek z najwyższymi genami i projektuje ich wagi na ograniczony simpleks: suma 80%, minimum 1% i maksimum 20% na spółkę. Dwa ETF-y sumują się do 20%, każdy ma minimum 1%. Mechanizm jest zaimplementowany dla docelowego wejścia 17 aktywów.
+
+Parametry domyślne: populacja 100, 200 pokoleń, rozmiar turnieju 3, prawdopodobieństwo krzyżowania 0,8, mutacji 0,1, skala mutacji 0,05, ziarno 42.
+
+### Markowitz
+
+Rozwiązanie SLSQP maksymalizuje estymowany zwrot przy ograniczeniu zmienności, budżetach 80/20, limicie 20% na spółkę i minimum 1% na każdy ETF. Nie wymusza dokładnie 10 aktywnych spółek.
+
+### 1/N
+
+Docelowy baseline dzieli 80% równo między 15 spółek i 20% równo między dwa ETF-y. Ta wersja jest zaimplementowana dla koszyka 17 aktywów. Dla syntetycznych danych demonstracyjnych bez koszyka projektu CLI zachowuje ogólne 1/N.
+
+## 9. Uruchamianie
+
+Zainstaluj zależności:
+
+~~~bash
+python -m pip install -r requirements.txt
+~~~
+
+Pobierz dane i wygeneruj CSV:
+
+~~~bash
+python -m alpha221.market_data
+~~~
+
+Uruchom prototyp na danych tygodniowych:
+
+~~~bash
+python -m alpha221 --input data/prices_weekly_usd.csv --frequency weekly --risk-limit 0.22
+~~~
+
+Pełne przeszukanie wszystkich zestawów spółek na dwuletnim oknie treningowym:
+
+~~~bash
+python -m alpha221 --input data/prices_weekly_usd.csv --frequency weekly --risk-limit 0.22 --exhaustive-subsets
+~~~
+
+Uruchom pięcioletni test kroczący na siedmioletnim zbiorze:
+
+~~~bash
+python -m alpha221 \
+  --input data/raw/prices_weekly_7y_usd.csv \
+  --frequency weekly \
+  --walk-forward \
+  --risk-limit 0.22
+~~~
+
+Test dopasowuje wagi na poprzednich 104 tygodniowych zwrotach i mierzy następne 26 tygodni. Powtarza to 10 razy. Zapisuje szczegóły do `results/walk_forward_folds.csv`, a podsumowanie do `results/walk_forward_summary.csv`.
+
+Przy wejściu tygodniowym program wypisuje wagi, estymowany roczny zwrot, zmienność, szansę dodatniego zwrotu za 6 miesięcy oraz wrażliwość na długość bloku 2 i 8 tygodni. Główna estymacja używa bloku 4 tygodni. Wyniki zapisuje domyślnie do results/comparison.csv. Dzienny tryb demonstracyjny nie wylicza prawdopodobieństwa 6-miesięcznego. Użycie bez argumentu input uruchamia syntetyczne dane demonstracyjne, które nie są wynikiem projektu.
+
+CLI obsługuje też risk-limit, seed, population, generations, yearly, output, probability-simulations i optimization-simulations. Domyślnie raport używa 10 000 ścieżek, a GA 1000 ścieżek na ocenę. Tryb yearly oblicza osobne statystyki dla każdego roku kalendarzowego. Nie jest to test poza próbą, ponieważ estymacja i ocena wykorzystują dane z tego samego roku.
+
+## 10. Aktualny status ewaluacji
+
+Dane rynkowe pobrano i zweryfikowano technicznie. Zaimplementowano ograniczenia portfela i test kroczący. Pierwszy pełny przebieg poza próbą używał limitu ryzyka 22%, 104 tygodni treningu, 26 tygodni utrzymywania wag, domyślnej populacji GA 100, 200 pokoleń, 1000 ścieżek w optymalizacji i 10 000 w raporcie. Wyniki obejmują 10 okresów testowych od 2021-11-19 do 2026-11-13:
+
+| Metoda | Łączny zwrot 5-letni | Dodatnie okresy 6-miesięczne | Średnia szacowana szansa zysku | Roczna zmienność z testu | Okresy w limicie 22% |
+|---|---:|---:|---:|---:|---:|
+| GA | 204.83% | 9/10 (90%) | 87.81% | 19.26% | 7/10 |
+| Markowitz | 319.40% | 9/10 (90%) | 88.01% | 21.44% | 7/10 |
+| 1/N | 177.29% | 9/10 (90%) | 75.86% | 19.94% | 8/10 |
+
+To pierwszy wynik historyczny, a nie dowód przewagi ani prognoza. Limit 22% jest ograniczeniem ryzyka oszacowanego na danych treningowych; zmienność zrealizowana w poszczególnych półroczach może go przekroczyć. Raport CSV pozostaje lokalny i ignorowany przez Git.
+
+Osobno wykonano pełne przeszukanie 3003 zestawów na dwuletnim oknie treningowym przy tym samym limicie 22%. Wagi każdego zestawu wyznaczył Markowitz, a wyniki rozpatrzonych portfeli oceniono bootstrapem:
+
+| Metoda na oknie treningowym | Szacowany zwrot roczny | Zmienność roczna | Szacowane P(dodatni zwrot za 6 mies.) |
+|---|---:|---:|---:|
+| GA | 53.10% | 18.75% | 98.90% |
+| Markowitz bez limitu liczby spółek | 61.03% | 22.00% | 98.05% |
+| 1/N | 29.13% | 19.59% | 90.06% |
+| Najlepszy z 3003 zestawów, wagi Markowitza | 53.45% | 18.42% | 98.93% |
+
+Wszystkie 3003 zestawy dały wykonalny wynik Markowitza przy limicie 22%. GA i najlepszy zestaw z przeszukania osiągnęły niemal identyczne szacowane prawdopodobieństwo. To porównanie jest in-sample, a wewnątrz każdego zestawu wagi maksymalizują oczekiwany zwrot, nie bootstrapowe prawdopodobieństwo; nie stanowi więc dowodu globalnej optymalności GA ani pełnego testu poza próbą.
+
+## 11. Ograniczenia i dalsza praca
+
+- Pełne ograniczenia GA/Markowitza i pięcioletni test kroczący są zaimplementowane. Nie ma jeszcze alokacji kwoty kapitału na liczbę jednostek.
+- Prawdopodobieństwo z bootstrapu jest estymacją na podstawie historii treningowej; pięcioletni test zawiera tylko 10 niezależnych okresów półrocznych.
+- Zwroty i kowariancje są estymowane z krótkiego, dwuletniego okna; wyniki są wrażliwe na ten okres.
+- Brakuje kosztów transakcji, podatków i modelu płynności; test nie uwzględnia kosztów rebalansowania.
+- Tygodniowe ceny ograniczają niedopasowanie kalendarzy giełd, ale nie synchronizują godzin zamknięcia rynków.
+- Dane mogą być opóźnione, zmienione lub czasowo niedostępne.
+- Projekt nie jest poradą inwestycyjną.
+
+Rola GA względem Markowitza wymaga uczciwej interpretacji: klasyczny Markowitz optymalizuje ciągłe wagi, ale można rozszerzyć go o wybór dyskretny. Wykonane przeszukanie obejmuje wszystkie 3003 składy, lecz jego wagi wewnątrz składu optymalizują oczekiwany zwrot. GA jest badaną heurystyką i nie gwarantuje globalnego optimum ani odporności na błędy estymacji. 1/N usuwa etap estymacji wag, ale nadal jest narażony na ryzyko rynku i nie jest odporny na każdy błąd danych. Limit 20% ogranicza ekspozycję na pojedynczą spółkę, ale nie eliminuje ryzyka wspólnego spadku rynku ani strat.
+
+Estymator bootstrapowy i ograniczenia wag są zaimplementowane, ale wynik pozostaje wrażliwy na krótkie dwuletnie okno i niepewność historyczną. GA i Markowitz optymalizują różne funkcje celu; wspólny test porównuje ich wyniki poza próbą, ale nie izoluje samego wpływu algorytmu optymalizacji.

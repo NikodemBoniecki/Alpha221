@@ -1,17 +1,28 @@
-=== Sprint 09.11-15.11 ===
-Zobowiązanie z poprzedniego sprintu: brak, to pierwszy raport.
+=== Sprint update 20.11.2026 ===
 
-[Kacper Nowaczyk]
-Zrobiłem: Przygotowałem z pomocą ChatGPT szkielet programu w Pythonie: wczytywanie cen z CSV, algorytm genetyczny oraz porównanie z Markowitzem i portfelem 1/N. Uruchomiłem program na danych syntetycznych.
-W następnym tygodniu zrobię: Doprecyzuję działanie selekcji, krzyżowania i mutacji oraz przygotuję algorytm do porównań na wybranym zbiorze danych.
+Zrealizowane:
+- Wybrano Yahoo Finance przez yfinance jako źródło danych do zamkniętego projektu edukacyjnego.
+- Zweryfikowano 15 spółek, ETF SPY, ETFBW20TR.WA oraz kursy USDPLN=X i EURUSD=X.
+- Przygotowano pobieranie, walidację i konwersję cen do USD; wygenerowano lokalne szeregi dzienne i tygodniowe, raport audytowy oraz manifest.
+- Potwierdzono dwuletni zrzut: 485 wspólnych obserwacji dziennych i 105 cen tygodniowych (104 okresy zwrotu).
+- Pobrano i sprawdzono historię siedmioletnią: 1703 wspólne obserwacje dzienne i 366 kolejnych cen tygodniowych dla 17 instrumentów.
+- Ustalono i wdrożono ograniczenia portfela: 80% spółki / 20% ETF-y; GA wybiera dokładnie 10 z 15 spółek, każda z wagą 1–20%; ETF-y mają minimum 1% każdy.
+- Wdrożono tygodniowy bootstrap blokowy dla dodatniego zwrotu USD w horyzoncie 26 tygodni. Główny blok ma 4 tygodnie; sprawdzana jest wrażliwość dla bloków 2 i 8 tygodni. GA używa 1000 ścieżek przy optymalizacji, raport 10000.
+- Markowitz używa budżetów 80/20, limitu 20% na spółkę i minimum 1% na ETF, bez wymogu dokładnie 10 spółek. 1/N dzieli równo 80% między 15 spółek i 20% między dwa ETF-y.
+- Wdrożono pięcioletni test kroczący: 104 tygodnie treningu, 26 tygodni testu i ponowne wyznaczanie wag co pół roku.
+- Wykonano pełne przeszukanie 3003 zestawów 10 spółek. Wagi każdego zestawu wyznacza Markowitz, a wykonalne wyniki są porównywane bootstrapowym prawdopodobieństwem.
+- Sprawdzono 22-procentowy limit ryzyka na dwuletnim oknie: wszystkie 3003 zestawy dały wykonalne rozwiązanie; najlepszy osiągnął 98,93% szacowanej szansy dodatniego zwrotu w 6 miesięcy.
+- Uruchomiono test kroczący na 10 okresach półrocznych i zweryfikowano 30 wierszy wyników dla GA, Markowitza i 1/N oraz ograniczenia wag portfeli.
+- Zaktualizowano dokumentację polską i angielską, README oraz karty projektu; usunięto nieaktualne instrukcje Kaggle/Tiingo i stare moduły przygotowania danych.
 
-[Adam Remfeld]
-Zrobiłem: Sprawdziłem wymagania dotyczące danych i z pomocą ChatGPT wybrałem zbiór Huge Stock Market Dataset CC0 oraz wstępny zestaw tickerów NVDA, AMD, MSFT, EA i TTWO. Danych jeszcze nie pobrałem.
-W następnym tygodniu zrobię: Pobiorę pliki dla wybranych tickerów, sprawdzę wspólny zakres dat i przygotuję CSV do pierwszej ewaluacji.
+Użycie narzędzi AI:
+- Wcześniejszy raport sprintowy odnotowywał użycie ChatGPT przez zespół. Bieżące zmiany kodu i dokumentacji przygotowano z pomocą Codex na polecenie Nikodema Bonieckiego.
 
-[Nikodem Boniecki]
-Zrobiłem: Dodałem przygotowanie wspólnego CSV z plików tickerów oraz tryb porównania GA, Markowitza i 1/N dla każdego roku. Dodałem medianę relacji zwrotu GA do Markowitza. Sprawdziłem oba polecenia na przykładowych danych. Przy pracy nad kodem i dokumentacją korzystałem z ChatGPT.
-W następnym tygodniu zrobię: Przygotuję plik z wybranego zbioru i uruchomię ewaluację dla pięciu okresów rocznych.
+Wyniki wstępne:
+- Test pięcioletni przy limicie 22%: GA 204,83% łącznego zwrotu, Markowitz 319,40%, 1/N 177,29%; każda metoda miała 9 dodatnich okresów z 10.
+- Wyniki są historyczne, obejmują tylko 10 okresów półrocznych i nie uwzględniają kosztów transakcji ani rebalansowania. Nie stanowią dowodu przewagi żadnej metody.
+- Pełne przeszukanie składów wykonano osobno na dwuletnim oknie treningowym; jego wagi wewnątrz zestawu maksymalizują oczekiwany zwrot Markowitza, a nie bootstrapowe prawdopodobieństwo.
 
-Blokuje nas: musimy pobrać pliki i sprawdzić, czy tickery mają wspólny zakres dat.
-Zobowiązanie zespołu na następny sprint: pobrać wybrane pliki, potwierdzić wspólny zakres dat i przygotować CSV do pierwszej ewaluacji.
+Do zrobienia:
+- Przeliczać kwotę inwestycji w USD na możliwe do kupienia jednostki aktywów.
+- Opcjonalnie przygotować wariant przeszukiwania, który optymalizuje bootstrapowe prawdopodobieństwo bezpośrednio wewnątrz każdego składu.

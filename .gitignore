@@ -5,3 +5,7 @@ venv/
 results/
 data/raw/
 data/prices.csv
+data/prices_weekly_usd.csv
+data/latest_prices_usd.csv
+data/market_data_manifest.json
+results/market_data_audit.csv

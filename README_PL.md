@@ -1,49 +1,43 @@
-# Alpha221: algorytm genetyczny do optymalizacji portfela
+# Alpha221: optymalizacja portfela z limitem ryzyka
 
-Projekt z kursu sztucznej inteligencji na Collegium Da Vinci, informatyka, grupa L2 / L3, rok akademicki 2026/2027.
+Projekt na laboratorium sztucznej inteligencji, Collegium Da Vinci, grupa L2/L3, rok akademicki 2026/2027.
 
-[English README](README.md) | [Karta tematu](karta-tematu.md) | [Project card in English](project_card_en.md)
+[English README](README.md) · [Karta tematu](karta-tematu.md) · [Dokumentacja techniczna](docs/dokumentacja.md)
 
-## Co robi projekt
+## Cel
 
-Program pomaga inwestorom indywidualnym porównać sposoby podziału kapitału między wybrane akcje. Wczytuje historyczne ceny dzienne i limit ryzyka, a następnie proponuje wagi spółek oraz szacuje zwrot i ryzyko. Może użyć lokalnego pliku CSV albo syntetycznych danych demonstracyjnych. Wybraliśmy [zbiór dziennych cen akcji z licencją CC0](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs), ale jeszcze go nie pobraliśmy.
+Porównujemy algorytm genetyczny (GA), optymalizację Markowitza i portfel równoważony 1/N na wspólnych danych cenowych. Koszyk zawiera 15 spółek oraz dwa ETF-y: SPY na S&P 500 i ETFBW20TR.WA na WIG20TR. GA przeznacza 80% na dokładnie 10 wybranych spółek (1–20% portfela na każdą) i 20% na dwa ETF-y (minimum 1% na każdy), a jego celem jest szacowane prawdopodobieństwo dodatniego zwrotu USD w 6 miesięcy przy limicie rocznej zmienności. Markowitz używa tego samego podziału, limitu 20% na spółkę i minimum 1% na ETF, ale nie ma wymogu dokładnie 10 spółek; 1/N dzieli 80% równo między 15 spółek i 20% po równo między ETF-y. Bootstrap blokowy i test kroczący są już zaimplementowane; pierwszy wynik poza próbą opisano w dokumentacji.
 
-## Technika AI
+## Dane
 
-Program używa algorytmu genetycznego do przeszukiwania możliwych wag portfela z uwzględnieniem limitu ryzyka. Porównuje wynik z optymalizatorem Markowitza i prostym portfelem równoważonym. Obecny szkielet w Pythonie zawiera główny algorytm i oba punkty odniesienia.
+Pobieracz używa yfinance do pobrania ostatnich dwóch lat dziennych notowań z Yahoo Finance. Przelicza ceny historyczne na USD, używając skorygowanych cen zamknięcia oraz kursów z właściwych dat. Nie uzupełnia cen akcji ani ETF-ów w dni bez sesji. Z kompletnych wspólnych sesji tworzy również próbkę tygodniową: ostatnią wspólną sesję w każdym tygodniu.
 
-## Wyniki
+Zweryfikowany zrzut 2-letni z 20.11.2026 zawiera 485 wspólnych obserwacji dziennych i 105 cen tygodniowych (104 okresy zwrotu). Siedmioletni zbiór do testu został pobrany lokalnie i przeszedł kontrolę: 1703 ceny dzienne oraz 366 tygodniowych dla 17 instrumentów, bez luk w tygodniowym indeksie i z kursem FX dostępnym tego samego dnia. Pliki danych i raport pozostają lokalne i są ignorowane przez Git. Polecenie odtworzenia pełnego zbioru znajduje się w [dokumentacji](docs/dokumentacja.md).
 
-Nie oceniliśmy jeszcze algorytmu na danych rynkowych. Celem jest, aby każdy portfel GA spełniał limit ryzyka, a mediana pięciu rocznych relacji zwrotu GA do Markowitza wyniosła co najmniej 0,95. Dane syntetyczne służą do uruchomienia programu, nie do raportowania wyników projektu.
+## Uruchomienie
 
-## Jak uruchomić
+Wymagany Python 3.10 lub nowszy.
 
-Wymagania: Python 3.10 lub nowszy.
-
-```bash
-git clone https://github.com/NikodemBoniecki/Alpha221.git
-cd Alpha221
+~~~bash
 python -m pip install -r requirements.txt
-python -m alpha221
-```
+python -m alpha221.market_data
+python -m alpha221 --input data/prices_weekly_usd.csv --frequency weekly --risk-limit 0.22
+~~~
 
-Domyślne polecenie generuje ceny syntetyczne i zapisuje porównanie w `results/comparison.csv`. Własny plik CSV można podać poleceniem `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. Plik musi zawierać kolumnę `date`, a potem po jednej kolumnie ceny zamknięcia dla każdego tickera. Planujemy przygotować ten plik z pięciu plików tickerów pobranych z Kaggle. Szczegóły dotyczące licencji Tiingo opisaliśmy w [notatce](docs/tiingo-data-notes.md).
+Pobieracz zapisuje dzienne ceny skorygowane w USD do data/prices.csv, tygodniowe do data/prices_weekly_usd.csv, najnowsze ceny zamknięcia do data/latest_prices_usd.csv, raport kontroli do results/market_data_audit.csv, a manifest pobrania do data/market_data_manifest.json.
 
-Pliki Kaggle można połączyć do wspólnego CSV i uruchomić porównanie dla każdego roku poleceniami:
+Polecenie porównania powyżej uruchamia tygodniowy model docelowych ograniczeń na dwuletnim oknie treningowym; nie jest to test poza próbą. Częstotliwość tygodniowa używa annualizacji 52 okresów rocznie; dzienna używa 252:
 
-```bash
-python -m alpha221.prepare --source data/raw/Stocks --tickers NVDA AMD MSFT EA TTWO --start 2012-01-03 --end 2017-01-03 --output data/prices.csv
-python -m alpha221 --input data/prices.csv --yearly --risk-limit 0.25
-```
+~~~bash
+python -m alpha221 --input data/prices.csv --frequency daily --risk-limit 0.22
+~~~
 
-Raport roczny zapisuje wyniki dla dostępnych lat oraz medianę relacji GA do Markowitza w `results/comparison.csv` i terminalu.
+Bez pliku wejściowego python -m alpha221 używa syntetycznych danych demonstracyjnych.
 
-## Zespół
+## Stan projektu
 
-- Kacper Nowaczyk: projekt algorytmu genetycznego i jego operatory.
-- Adam Remfeld: wybór licencjonowanego źródła, pozyskanie i przygotowanie danych.
-- Nikodem Boniecki: punkty odniesienia, ewaluacja, integracja i dokumentacja.
+Pobieranie, kontrola jakości, przeliczenie walut, ograniczenia wag, bootstrap tygodniowy, pięcioletni test kroczący i pełne przeszukanie 3003 zestawów są zaimplementowane. Nadal do zrobienia pozostaje przeliczenie alokacji kwoty inwestycji na liczbę jednostek.
 
-## Dokumentacja
+## Źródło i ograniczenia
 
-Zobacz [pełną dokumentację po polsku](docs/dokumentacja.md), [abstrakt techniczny po angielsku](docs/abstract_en.md) i [nasze notatki o danych Tiingo](docs/tiingo-data-notes.md).
+yfinance jest nieoficjalnym narzędziem korzystającym z publicznie dostępnych interfejsów Yahoo Finance. To projekt edukacyjny, nie produkt inwestycyjny. Yahoo zastrzega ograniczenia dotyczące wykorzystania i redystrybucji danych; nie publikujemy pobranych szeregów cenowych. Szczegóły znajdują się w [dokumentacji](docs/dokumentacja.md).

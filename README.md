@@ -1,49 +1,43 @@
-# Alpha221: Genetic Algorithm for Portfolio Optimization
+# Alpha221: risk-constrained portfolio optimization
 
-AI course project at Collegium Da Vinci, Computer Science, group L2 / L3, academic year 2026/2027.
+Artificial intelligence laboratory project at Collegium Da Vinci, group L2/L3, academic year 2026/2027.
 
-[Polska wersja README](README_PL.md) | [Project card](karta-tematu.md) | [English project card](project_card_en.md)
+[Polska wersja README](README_PL.md) · [Polish project card](karta-tematu.md) · [Technical documentation](docs/dokumentacja.md)
 
-## What it does
+## Goal
 
-The program helps individual investors compare ways to divide money among selected stocks. It reads historical daily prices and a risk limit, then suggests portfolio weights and estimates return and risk. It can use a local CSV file or synthetic demo prices. We selected a [CC0 dataset of daily U.S. stock prices](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs), but have not downloaded it yet.
+We compare a genetic algorithm (GA), Markowitz optimization, and an equal-weight 1/N portfolio on the same price data. The basket contains 15 stocks and two ETFs: SPY for the S&P 500 and ETFBW20TR.WA for WIG20TR. The GA allocates 80% to exactly 10 selected stocks (1–20% of total portfolio each) and 20% to the ETFs (at least 1% each), maximizing estimated probability of a positive USD return over six months subject to an annualized volatility limit. Markowitz uses the same allocation and 20% stock cap without an exact-10 constraint; 1/N equally weights all stocks and ETFs within their buckets. Weekly block-bootstrap estimation, target weight constraints, and the five-year walk-forward evaluation are implemented. The first out-of-sample results are in the [technical documentation](docs/dokumentacja.md).
 
-## AI technique
+## Data
 
-The program uses a genetic algorithm to search possible portfolio weights under a risk limit. It compares the result with a Markowitz optimizer and a simple equal-weight portfolio. The Python application includes the main algorithm and both baselines.
+The downloader uses yfinance to fetch the latest two years of daily Yahoo Finance data. It converts adjusted closing prices to USD using historical FX rates. It does not fill stock or ETF prices on market holidays. It also creates weekly observations from the last common trading session in each week.
 
-## Results
+The validated two-year snapshot from 2026-11-20 contains 485 common daily observations and 105 weekly prices (104 return intervals). The seven-year walk-forward dataset was downloaded and validated locally: 1,703 daily prices and 366 weekly prices for all 17 instruments, with no gaps in the weekly index and same-day FX availability. Price files and the audit report are local and ignored by Git. The reproducible download command is in the [technical documentation](docs/dokumentacja.md).
 
-We have not evaluated the algorithm on market data yet. Our target is for every GA portfolio to meet the risk limit and for the median of five annual GA to Markowitz return ratios to reach at least 0.95. The built-in synthetic demo is for trying the program, not for reporting project results.
+## Run
 
-## How to run
+Python 3.10 or newer is required.
 
-Requirements: Python 3.10 or newer.
-
-```bash
-git clone https://github.com/NikodemBoniecki/Alpha221.git
-cd Alpha221
+~~~bash
 python -m pip install -r requirements.txt
-python -m alpha221
-```
+python -m alpha221.market_data
+python -m alpha221 --input data/prices_weekly_usd.csv --frequency weekly --risk-limit 0.22
+~~~
 
-The default command generates synthetic prices and writes a comparison to `results/comparison.csv`. To use a CSV file, run `python -m alpha221 --input data/prices.csv --risk-limit 0.25`. The CSV must have a `date` column followed by one closing price column per ticker. We plan to prepare that file from five Kaggle ticker files. See [our Tiingo licensing notes](docs/tiingo-data-notes.md).
+The downloader writes adjusted daily USD prices to data/prices.csv, weekly prices to data/prices_weekly_usd.csv, latest closing prices to data/latest_prices_usd.csv, an audit to results/market_data_audit.csv, and a download manifest to data/market_data_manifest.json.
 
-Prepare a wide CSV from the downloaded Kaggle files, then compare each calendar year:
+The comparison command runs the weekly optimizer with the project's 80/20 allocation, GA cardinality rule, and bootstrap probability objective. It uses the two-year input and is an in-sample estimate; use the seven-year walk-forward command in the technical documentation for out-of-sample evaluation. Weekly sampling annualizes with 52 periods; daily sampling uses 252:
 
-```bash
-python -m alpha221.prepare --source data/raw/Stocks --tickers NVDA AMD MSFT EA TTWO --start 2012-01-03 --end 2017-01-03 --output data/prices.csv
-python -m alpha221 --input data/prices.csv --yearly --risk-limit 0.25
-```
+~~~bash
+python -m alpha221 --input data/prices.csv --frequency daily --risk-limit 0.22
+~~~
 
-The annual report and the median genetic algorithm to Markowitz return ratio are printed and saved to `results/comparison.csv`.
+Without an input file, python -m alpha221 uses synthetic demo prices.
 
-## Team
+## Project status
 
-- Kacper Nowaczyk: genetic algorithm design and operators.
-- Adam Remfeld: choosing a licensed data source, acquiring and preparing data.
-- Nikodem Boniecki: baselines, evaluation, integration, and documentation.
+Data download, validation, currency conversion, weekly block-bootstrap probability estimation, target weight constraints, five-year walk-forward evaluation, and exhaustive evaluation of all 3,003 stock subsets are implemented. Allocation of an investment amount into asset units remains future work. See the [technical documentation](docs/dokumentacja.md) for results and limitations.
 
-## Documentation
+## Data source and limits
 
-Read the [full documentation in Polish](docs/dokumentacja.md), the [technical abstract in English](docs/abstract_en.md), and [our notes on Tiingo data](docs/tiingo-data-notes.md).
+yfinance is an unofficial tool that uses Yahoo Finance's publicly available interfaces. This is an educational project, not an investment product. Yahoo places restrictions on data use and redistribution; downloaded price series are not published. See the [technical documentation](docs/dokumentacja.md).

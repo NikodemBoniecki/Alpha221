@@ -1,16 +1,14 @@
 # Karta zgłoszenia tematu projektu
 
-**Grupa:** L2 / L3 | **Zespół:** Z4 | **Data ostatniej zmiany:** 2026-11-14
+**Grupa:** L2 / L3 | **Zespół:** Z4 | **Aktualizacja:** 2026-11-20
 Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
 
-Plik `karta-tematu.md` w głównym katalogu repozytorium zespołu. Karta w repozytorium jest wersją obowiązującą.
+## 1. Skład zespołu
 
-## 1. Skład zespołu (obowiązkowe)
-
-| Imię i nazwisko | Nr albumu | Rola (wstępna) |
+| Imię i nazwisko | Nr albumu | Zakres |
 |---|---:|---|
-| Kacper Nowaczyk | 31838 | Projekt algorytmu genetycznego i operatory GA |
-| Adam Remfeld | 31799 | Wybór licencjonowanego źródła, pozyskanie i przygotowanie danych |
+| Kacper Nowaczyk | 31838 | Algorytm genetyczny i jego operatory |
+| Adam Remfeld | 31799 | Pozyskanie i przygotowanie danych |
 | Nikodem Boniecki | 31865 | Punkty odniesienia, ewaluacja, integracja i dokumentacja |
 
 ## 2. Tytuł
@@ -18,74 +16,70 @@ Plik `karta-tematu.md` w głównym katalogu repozytorium zespołu. Karta w repoz
 - **Po polsku:** Optymalizator portfela inwestycyjnego algorytmem genetycznym przy ograniczeniu ryzyka
 - **Po angielsku:** Genetic Algorithm for Risk-Constrained Investment Portfolio Optimization
 
-## 3. Problem (obowiązkowe)
+## 3. Problem
 
-Chcemy pomóc inwestorom indywidualnym zdecydować, jak podzielić kapitał między wybrane akcje, uwzględniając oczekiwany zwrot i ryzyko. Program przyjmie historyczne ceny dzienne spółek oraz limit ryzyka podany przez użytkownika. Na tej podstawie zaproponuje udziały spółek w portfelu i oszacuje jego zwrot oraz ryzyko. Na początek skupimy się na firmach z obszarów AI, gamedev i półprzewodników.
+Projekt bada, jak podział portfela wpływa na szacowany zwrot i ryzyko. Użytkownik podaje limit rocznej zmienności. Program ma dobrać wagi aktywów i porównać algorytm genetyczny z modelem Markowitza oraz portfelem równoważonym.
 
-## 4. Dlaczego zwykły algorytm nie wystarczy
+## 4. Dlaczego używamy algorytmu genetycznego?
 
-- [ ] nie umiemy zapisać reguły krok po kroku
-- [ ] przepis istnieje, ale jest obliczeniowo za drogi
-- [ ] reguł jest za dużo i zmieniają się w czasie
+Klasyczną optymalizację średnia-wariancja można rozwiązać bez algorytmu genetycznego. GA wybraliśmy jako metodę omawianą na zajęciach i punkt porównania dla mieszanego problemu doboru aktywów i wag.
 
-Uzasadnienie: Podstawowy problem portfelowy da się rozwiązać klasyczną optymalizacją średnia-wariancja, więc nie twierdzimy, że dla naszej skali zwykły algorytm jest za wolny. Wybraliśmy algorytm genetyczny, aby sprawdzić metodę z zajęć i porównać ją z rozwiązaniem Markowitza oraz portfelem równoważonym.
+## 5. Technologia SI
 
-## 5. Technologia SI (obowiązkowe)
+- [ ] Sieć neuronowa
+- [ ] System ekspertowy lub wnioskowanie regułowe
+- [x] Algorytm genetyczny
+- [ ] Klasyczne uczenie maszynowe
 
-- [ ] sieć neuronowa
-- [ ] system ekspertowy / wnioskowanie regułowe
-- [x] algorytm genetyczny
-- [ ] klasyczne uczenie maszynowe
+## 6. Dane
 
-Dlaczego ta technologia pasuje do tego problemu: Algorytm genetyczny pozwoli nam przeszukać wiele możliwych zestawów wag portfela i uwzględnić limit ryzyka przy ocenie każdego z nich. Zobaczymy, jak jego wyniki wypadają w porównaniu z analitycznym rozwiązaniem Markowitza.
+Źródłem dziennych notowań jest Yahoo Finance, pobierane przez nieoficjalną bibliotekę yfinance. Wykorzystujemy je wyłącznie w zamkniętym projekcie edukacyjnym. Dane w CSV są lokalne i ignorowane przez Git.
 
-## 6. Dane (obowiązkowe)
+| Grupa | Ticker | Waluta notowania |
+|---|---|---|
+| Spółki | AAPL, MSFT, NVDA, JPM, KO, TTWO, AMD, ASML, TSLA | USD |
+| Spółka | UBI.PA | EUR |
+| Spółki | CDR.WA, XTB.WA, PKN.WA, ASB.WA, CBF.WA | PLN |
+| ETF S&P 500 | SPY | USD |
+| ETF WIG20TR | ETFBW20TR.WA | PLN |
 
-| | |
-|---|---|
-| Źródło (link do konkretnego zbioru, nie do serwisu) | [Huge Stock Market Dataset, wersja 3](https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs). Wybierzemy pliki dla NVDA, AMD, MSFT, EA i TTWO. Zbiór ma licencję CC0. |
-| Rozmiar i format | Pięć plików CSV z dziennymi cenami OHLCV. Planowany okres to 2012-01-03 do 2017-01-03, około 1 260 sesji na spółkę, łącznie około 6 300 obserwacji przed sprawdzeniem braków. |
-| Czy dane są już dostępne? | Nie. Wybraliśmy zbiór, ale nie pobraliśmy jeszcze plików. |
-| Plan pozyskania danych | Pobierzemy wybrane pliki z Kaggle, sprawdzimy dostępność tickerów i zakres dat, a potem przygotujemy wspólny plik CSV z datą i skorygowaną ceną zamknięcia. Kaggle opisuje ceny jako skorygowane o splity i dywidendy. |
+Pobieracz pobiera ostatnie dwa lata danych dla 15 spółek, dwóch ETF-ów oraz kursów USDPLN=X i EURUSD=X. Historyczne ceny skorygowane o działania korporacyjne przelicza na USD. PLN dzieli przez kurs USD/PLN, a EUR mnoży przez EUR/USD. Kurs FX przypisuje według daty notowania; gdyby dokładny dzień nie był dostępny, stosuje ostatnią wcześniejszą obserwację FX. Ceny instrumentów nie są uzupełniane.
+
+Zrzut zweryfikowany 2026-11-20 zawiera 485 kompletnych wspólnych sesji dziennych oraz 105 tygodniowych cen, czyli 104 tygodniowe okresy zwrotu. Tygodniowa cena pochodzi z ostatniej wspólnej sesji w tygodniu; etykieta daty wskazuje piątek kończący tydzień.
 
 ## 7. Stos technologiczny
 
-Program działa na Pythonie 3.10 lub nowszym i CPU. Do obliczeń używa `numpy` i `scipy`; zależności znajdują się w `requirements.txt`. Zbiór pobierzemy ręcznie z Kaggle, a do programu wczytamy przygotowany plik CSV. Nie korzystamy z API ani tokenu.
+Python 3.10+, NumPy, SciPy, pandas i yfinance. Dane pobiera polecenie python -m alpha221.market_data; nie jest wymagany token API. Aplikacja jest konsolowym prototypem.
 
-## 8. Kryterium sukcesu (obowiązkowe)
+## 8. Kryteria porównania
 
-- **Metryka:** odsetek portfeli GA spełniających limit rocznej zmienności oraz roczna relacja zwrotu GA do zwrotu Markowitza przy tym samym limicie.
-- **Próg (liczba):** każdy portfel zwrócony przez algorytm genetyczny musi spełniać limit ryzyka. Mediana pięciu rocznych relacji zwrotu GA do Markowitza, dla lat 2012-2016, ma wynieść co najmniej 0,95 (95%). To nasz cel na ewaluację.
-- **Punkt odniesienia** (prosta metoda, z którą porównacie wynik): klasyczny model Markowitza (punkt odniesienia jakości) i portfel równoważony 1/N (prosta metoda bazowa).
+GA ma maksymalizować szacowane prawdopodobieństwo dodatniego skumulowanego zwrotu USD w 6 miesięcy, przy limicie rocznej zmienności. Wagi będą wyznaczane z kroczącego 2-letniego okna tygodniowych danych i oceniane w 5-letnim teście poza próbą, z aktualizacją co 26 tygodni. Wyniki GA, Markowitza i 1/N będą porównywane na tych samych okresach.
 
-## 9. Zakres minimalny (obowiązkowe)
+GA wybiera dokładnie 10 z 15 spółek; każda wybrana spółka ma wagę 1–20% całego portfela. Łączny udział spółek to 80%, ETF-ów 20%, a każdy ETF ma minimum 1%. Markowitz ma te same limity udziałów, ale może wybrać dowolną liczbę spółek. 1/N dzieli część akcyjną po równo między 15 spółek oraz część ETF-ową po równo między dwa ETF-y.
 
-Nasz program wczyta historyczne ceny dla kilku tickerów, obliczy dzienne stopy zwrotu i macierz kowariancji, a następnie uruchomi algorytm genetyczny. Dopuścimy tylko długie pozycje, a wagi portfela będą sumować się do 1. Program pokaże wagi, szacowany zwrot i ryzyko. Algorytm genetyczny nie zwróci rozwiązania przekraczającego limit, a wyniki porównamy z Markowitzem i 1/N na tych samych danych. Jeśli portfel 1/N przekroczy limit, oznaczymy go jako niespełniający ograniczenia.
+Nie ustaliliśmy jeszcze liczbowego progu porównania metod ani końcowego protokołu ewaluacji poza próbą. Nie ma wyników końcowych.
 
-## 10. Zakres opcjonalny
+## 9. Zakres i stan implementacji
 
-Jeśli wystarczy czasu, porównamy kilka ustawień parametrów i ziaren losowości, narysujemy granicę efektywną albo przygotujemy prosty ekran do wyboru tickerów i limitu ryzyka.
+**Działa:** pobieranie i walidacja danych, przeliczenie na USD, eksport dziennych i tygodniowych cen, loader CSV, prototyp GA, Markowitz, 1/N i annualizacja dla częstotliwości dziennej oraz tygodniowej.
+
+**Zaimplementowano:** ograniczenia wag, wybór 10 z 15 spółek przez GA, estymację celu 6-miesięcznego bootstrapem blokowym, pięcioletni test kroczący i pełne przeszukanie 3003 podzbiorów. Do dalszej pracy: alokacja kwoty inwestycji w USD na jednostki aktywów.
+
+GA wybiera 10 spółek z 15 i optymalizuje je na tygodniowym celu bootstrapowym. Pełne przeszukanie 3003 składów jest już zaimplementowane jako kontrola jakości; nie stanowi globalnego optimum po wszystkich możliwych wag, ponieważ wagi wewnątrz każdego składu wyznacza Markowitz.
+
+## 10. Ograniczenia
+
+Wyniki będą zależeć od wybranego okna historycznego i nie przewidują przyszłości. Nie uwzględniamy kosztów transakcji, podatków ani płynności. Dane Yahoo Finance nie są gwarantowane jako bezbłędne ani stale dostępne. Nie publikujemy pobranych szeregów cenowych. Projekt nie jest poradą inwestycyjną.
 
 ## 11. Repozytorium
 
-Link: https://github.com/NikodemBoniecki/Alpha221
-
-Raporty sprintów prowadzimy w pliku `sprints.txt` w głównym katalogu repozytorium.
-
-## 12. Główne ryzyko i plan awaryjny (obowiązkowe)
-
-Największym ryzykiem jest to, że wybrane tickery nie będą miały wspólnego zakresu dat albo stary zbiór nie będzie dobrze opisywał obecnego rynku. Przed ewaluacją sprawdzimy pliki i wspólny okres. Jeśli danych będzie za mało, użyjemy innego zbioru CC0 albo zmniejszymy liczbę tickerów. Przy zbyt niskim limicie ryzyka program zgłosi brak dopuszczalnego portfela. Dane syntetyczne wykorzystamy tylko do sprawdzenia kodu, nie do końcowej ewaluacji.
-
----
+https://github.com/NikodemBoniecki/Alpha221
 
 ## Decyzja prowadzącego
 
-> Wypełnia prowadzący. Tej sekcji nie edytujemy.
+> Tę sekcję wypełnia prowadzący.
 
-- [ ] zatwierdzony
-- [ ] do poprawy
+- [ ] Zatwierdzony
+- [ ] Do poprawy
 
 **Uwagi:**
-
----
-*Bartosz Lewandowski · bartosz.lewandowski@cdv.pl · Sztuczna inteligencja, laboratorium · Collegium Da Vinci · rok akademicki 2026/2027*
