@@ -1,6 +1,6 @@
 # Karta zgłoszenia tematu projektu
 
-**Grupa:** L2 / L3 | **Zespół:** Z4 | **Aktualizacja:** 2026-11-20
+**Grupa:** L2 / L3 | **Zespół:** Z4 | **Aktualizacja:** 2026-11-21
 Sztuczna inteligencja, laboratorium | Collegium Da Vinci | rok akademicki 2026/2027
 
 ## 1. Skład zespołu
@@ -43,9 +43,9 @@ Klasyczną optymalizację średnia-wariancja można rozwiązać bez algorytmu ge
 | ETF S&P 500 | SPY | USD |
 | ETF WIG20TR | ETFBW20TR.WA | PLN |
 
-Pobieracz pobiera ostatnie dwa lata danych dla 15 spółek, dwóch ETF-ów oraz kursów USDPLN=X i EURUSD=X. Historyczne ceny skorygowane o działania korporacyjne przelicza na USD. PLN dzieli przez kurs USD/PLN, a EUR mnoży przez EUR/USD. Kurs FX przypisuje według daty notowania; gdyby dokładny dzień nie był dostępny, stosuje ostatnią wcześniejszą obserwację FX. Ceny instrumentów nie są uzupełniane.
+Pobieracz domyślnie pobiera ostatnie dwa lata danych dla 15 spółek, dwóch ETF-ów oraz kursów USDPLN=X i EURUSD=X. Obsługuje też odtwarzalne okno `--start/--end`. Historyczne ceny skorygowane o działania korporacyjne przelicza na USD. PLN dzieli przez USD/PLN, a EUR mnoży przez EUR/USD. Ceny instrumentów nie są uzupełniane.
 
-Zrzut zweryfikowany 2026-11-20 zawiera 485 kompletnych wspólnych sesji dziennych oraz 105 tygodniowych cen, czyli 104 tygodniowe okresy zwrotu. Tygodniowa cena pochodzi z ostatniej wspólnej sesji w tygodniu; etykieta daty wskazuje piątek kończący tydzień.
+Siedmioletni zbiór z okresu 21.11.2019-20.11.2026 zawiera 1703 wspólne sesje dzienne oraz 366 cen tygodniowych, czyli 365 okresów zwrotu. Audyt nie wykazał błędnych tickerów, walut, typów instrumentów, luk ani niepoprawnych cen. Każdy potrzebny kurs FX pochodził z tego samego dnia.
 
 ## 7. Stos technologiczny
 
@@ -53,19 +53,17 @@ Python 3.10+, NumPy, SciPy, pandas i yfinance. Dane pobiera polecenie python -m 
 
 ## 8. Kryteria porównania
 
-GA ma maksymalizować szacowane prawdopodobieństwo dodatniego skumulowanego zwrotu USD w 6 miesięcy, przy limicie rocznej zmienności. Wagi będą wyznaczane z kroczącego 2-letniego okna tygodniowych danych i oceniane w 5-letnim teście poza próbą, z aktualizacją co 26 tygodni. Wyniki GA, Markowitza i 1/N będą porównywane na tych samych okresach.
+GA maksymalizuje szacowane prawdopodobieństwo dodatniego skumulowanego zwrotu USD w 6 miesięcy przy limicie rocznej zmienności. Wagi są wyznaczane z kroczącego 2-letniego okna tygodniowych danych i oceniane w 5-letnim teście poza próbą, z aktualizacją co 26 tygodni. Wyniki GA, Markowitza i 1/N są porównywane na tych samych 10 okresach.
 
-GA wybiera dokładnie 10 z 15 spółek; każda wybrana spółka ma wagę 1–20% całego portfela. Łączny udział spółek to 80%, ETF-ów 20%, a każdy ETF ma minimum 1%. Markowitz ma te same limity udziałów, ale może wybrać dowolną liczbę spółek. 1/N dzieli część akcyjną po równo między 15 spółek oraz część ETF-ową po równo między dwa ETF-y.
+GA wybiera dokładnie 10 z 15 spółek. Każda wybrana spółka ma wagę 1-20%. Spółki zajmują łącznie 80% portfela, a ETF-y 20%, przy minimum 1% na każdy ETF. Markowitz ma te same limity, ale może użyć dowolnej liczby spółek. 1/N dzieli obie części po równo.
 
-Nie ustaliliśmy jeszcze liczbowego progu porównania metod ani końcowego protokołu ewaluacji poza próbą. Nie ma wyników końcowych.
+Końcowy przebieg przy limicie 22% dał łączne zwroty historyczne: GA 199,71%, Markowitz 319,40% i 1/N 177,29%. Każda metoda miała 9 dodatnich okresów półrocznych z 10. Są to wyniki historyczne bez prowizji, podatków i kosztów rebalansowania, a nie prognoza ani dowód przewagi metody.
 
 ## 9. Zakres i stan implementacji
 
-**Działa:** pobieranie i walidacja danych, przeliczenie na USD, eksport dziennych i tygodniowych cen, loader CSV, prototyp GA, Markowitz, 1/N i annualizacja dla częstotliwości dziennej oraz tygodniowej.
+Program pobiera i sprawdza dane, przelicza ceny na USD, eksportuje pliki dzienne i tygodniowe oraz zapisuje manifest z sumami SHA-256. Działają też GA, Markowitz, 1/N, ograniczenia wag, bootstrap, pięcioletni test kroczący i sprawdzenie wszystkich 3003 składów po 10 spółek.
 
-**Zaimplementowano:** ograniczenia wag, wybór 10 z 15 spółek przez GA, estymację celu 6-miesięcznego bootstrapem blokowym, pięcioletni test kroczący i pełne przeszukanie 3003 podzbiorów. Do dalszej pracy: alokacja kwoty inwestycji w USD na jednostki aktywów.
-
-GA wybiera 10 spółek z 15 i optymalizuje je na tygodniowym celu bootstrapowym. Pełne przeszukanie 3003 składów jest już zaimplementowane jako kontrola jakości; nie stanowi globalnego optimum po wszystkich możliwych wag, ponieważ wagi wewnątrz każdego składu wyznacza Markowitz.
+Wagi w każdym z 3003 składów wyznacza Markowitz, więc nie jest to pełne przeszukanie wszystkich możliwych wag. Zostało przeliczenie kwoty inwestycji w USD na jednostki aktywów, które można faktycznie kupić.
 
 ## 10. Ograniczenia
 

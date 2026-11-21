@@ -1,6 +1,6 @@
 # Project Topic Card
 
-**Group:** L2 / L3 | **Team:** Z4 | **Updated:** 2026-11-20
+**Group:** L2 / L3 | **Team:** Z4 | **Updated:** 2026-11-21
 Artificial Intelligence laboratory | Collegium Da Vinci | academic year 2026/2027
 
 ## 1. Team
@@ -18,7 +18,7 @@ Artificial Intelligence laboratory | Collegium Da Vinci | academic year 2026/202
 
 ## 3. Problem
 
-The project studies how portfolio allocation affects estimated return and risk. The user supplies an annual volatility limit. The program is intended to select asset weights and compare the genetic algorithm with Markowitz optimization and an equal-weight portfolio.
+The project checks how different portfolio weights affect return and risk estimates. The user sets an annual volatility limit, and the program compares the genetic algorithm with Markowitz optimization and an equal-weight portfolio.
 
 ## 4. Why use a genetic algorithm?
 
@@ -43,9 +43,9 @@ Daily quotes come from Yahoo Finance through the unofficial yfinance library. We
 | S&P 500 ETF | SPY | USD |
 | WIG20TR ETF | ETFBW20TR.WA | PLN |
 
-The downloader retrieves the latest two years for the 15 stocks, two ETFs, and USDPLN=X and EURUSD=X currency pairs. It converts corporate-action-adjusted historical prices to USD: PLN prices are divided by USD/PLN, and EUR prices are multiplied by EUR/USD. FX is aligned to each asset date; if an exact-date rate is unavailable, the most recent earlier rate is used. Asset prices are never filled.
+By default, the downloader gets two years of data for the 15 stocks, two ETFs, and the USDPLN=X and EURUSD=X currency pairs. A fixed `--start/--end` window can be used to reproduce a dataset. Historical adjusted prices are converted to USD: PLN prices are divided by USD/PLN, and EUR prices are multiplied by EUR/USD. Missing asset prices are not filled.
 
-The snapshot validated on 2026-11-20 contains 485 complete common daily sessions and 105 weekly prices, or 104 weekly return intervals. Each weekly price comes from the last common session of that week; its date label is the Friday ending the week.
+The seven-year dataset covers 2019-11-21 to 2026-11-20. It contains 1,703 common daily sessions and 366 weekly prices, or 365 return periods. We found no ticker or currency mismatches, gaps, or invalid prices. Every required FX rate came from the same date.
 
 ## 7. Technology stack
 
@@ -53,17 +53,15 @@ Python 3.10+, NumPy, SciPy, pandas, and yfinance. Run python -m alpha221.market_
 
 ## 8. Comparison criteria
 
-The GA objective is to maximize estimated probability of a positive compounded USD return over six months, subject to the supplied annualized volatility limit. The GA selects exactly 10 of 15 stocks; each selected stock has a 1% minimum and 20% maximum portfolio weight. Stocks total 80%; the two ETFs total 20%, with at least 1% in each. Markowitz uses the same 80/20 budgets, 20% stock cap, and ETF minimums, but has no exact-10 requirement. The 1/N baseline divides the stock budget equally across all 15 stocks and the ETF budget equally across both ETFs.
+GA looks for the highest estimated chance of a positive six-month USD return without exceeding the annual volatility limit. It selects exactly 10 of 15 stocks. Each selected stock has a weight between 1% and 20%; stocks together make up 80% of the portfolio. The two ETFs share the remaining 20%, with at least 1% in each. Markowitz follows the same limits but can use any number of stocks. The 1/N baseline divides both parts equally.
 
-Weights are intended to use a rolling two-year weekly lookback. Evaluation is planned as a five-year out-of-sample walk-forward test, re-optimizing every 26 weeks and holding each allocation for the next 26 weeks. A seven-year dataset has been downloaded and validated. The weekly prototype now estimates six-month probability using a moving block bootstrap: four-week blocks, 1,000 paths during GA optimization, and 10,000 paths for reporting, with two- and eight-week sensitivity checks. Final results are not available yet.
+Weights are fitted on a rolling two-year window of weekly returns. The five-year walk-forward test recalculates them every 26 weeks and keeps each allocation for the next 26 weeks. The bootstrap uses four-week blocks and 1,000 paths while GA is running. The final report uses 10,000 paths and also checks two- and eight-week blocks. With a 22% risk limit, historical compounded returns were 199.71% for GA, 319.40% for Markowitz, and 177.29% for 1/N. Every method had 9 positive periods out of 10.
 
 ## 9. Scope and implementation status
 
-**Implemented:** data download and validation, USD conversion, daily and weekly price exports, CSV loading, prototype GA, Markowitz, 1/N, and daily/weekly annualization.
+The program can download and audit data, convert prices to USD, export daily and weekly files, save a SHA-256 manifest, and compare GA, Markowitz, and 1/N. It enforces the agreed weight limits, runs the five-year walk-forward test, and checks all 3,003 possible groups of 10 stocks.
 
-**Implemented:** agreed allocation/weight constraints, exact-10 GA selection, six-month block-bootstrap objective, rolling five-year evaluation, and exhaustive evaluation of all 3,003 stock subsets. **Still to implement:** converting a USD investment amount into asset units.
-
-The target allocation rules and walk-forward evaluation are implemented. Exactly 10 of 15 stocks gives 3,003 possible subsets, so the GA should be presented as the method under study, not as inherently superior to Markowitz. Exhaustive subset search remains a useful next quality check.
+The remaining task is to convert an investment amount in USD into units that can actually be bought. GA is the method studied in the project, not a method assumed to be better than Markowitz.
 
 ## 10. Limitations
 

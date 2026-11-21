@@ -15,21 +15,21 @@ W następnym tygodniu zrobię: Przygotuję instrukcję uruchomienia i dokumentac
 === Sprint 20.11.2026 ===
 
 Zrealizowane:
-- Ustalono Yahoo Finance przez yfinance jako źródło dziennych danych do zamkniętego projektu edukacyjnego; dane pozostają lokalne i nie są publikowane w repozytorium.
-- Zweryfikowano koszyk 15 spółek oraz ETF-y SPY i ETFBW20TR.WA. Ceny historyczne przeliczane są na USD z użyciem kursów z odpowiadających im dat.
-- Zaimplementowano pobieranie, walidację, audyt i eksport danych dziennych oraz tygodniowych. Siedmioletni zbiór przeszedł kontrolę: 1703 wspólne obserwacje dzienne i 366 kolejnych tygodniowych cen dla 17 instrumentów.
-- Ustalono limity: 80% portfela na spółki i 20% na ETF-y; GA wybiera dokładnie 10 z 15 spółek, z wagą 1–20% portfela dla każdej wybranej spółki. Każdy ETF ma minimum 1%.
-- Markowitz używa tych samych budżetów 80/20, limitu 20% na spółkę i minimum 1% na ETF, bez wymogu wyboru dokładnie 10 spółek. Portfel 1/N dzieli równo część akcyjną między 15 spółek i indeksową między dwa ETF-y.
-- Zaimplementowano tygodniowy bootstrap blokowy do szacowania prawdopodobieństwa dodatniego zwrotu w USD w horyzoncie 26 tygodni. Główny blok ma 4 tygodnie; sprawdzana jest wrażliwość dla długości 2 i 8 tygodni.
-- Zaimplementowano pięcioletni test kroczący: 104 tygodnie treningu, 26 tygodni oceny i ponowne wyznaczanie wag co pół roku.
-- Zaimplementowano pełne przeszukanie 3003 zestawów po 10 spółek jako punkt kontrolny. Wagi w każdym zestawie wyznacza Markowitz, a zestawy są oceniane bootstrapowym prawdopodobieństwem; nie jest to globalne optimum wszystkich wag dla każdego zestawu.
-- Uruchomiono test kroczący przy limicie ryzyka 22% oraz sprawdzono ograniczenia wag i wyniki GA, Markowitza i 1/N. Wstępne wyniki i ich ograniczenia opisano w dokumentacji.
-- Zaktualizowano README, dokumentację i karty projektu; usunięto nieaktualne instrukcje i moduły.
+- Wybraliśmy Yahoo Finance i bibliotekę yfinance jako źródło danych. Pliki z cenami zostają lokalnie i nie trafiają do repozytorium.
+- Sprawdziliśmy koszyk 15 spółek oraz ETF-y SPY i ETFBW20TR.WA. Ceny historyczne przeliczamy na USD po kursie z tego samego dnia.
+- Program pobiera, sprawdza i eksportuje dane dzienne oraz tygodniowe. Siedmioletni zbiór ma 1703 wspólne sesje dzienne i 366 cen tygodniowych dla 17 instrumentów.
+- Przyjęliśmy podział 80% na spółki i 20% na ETF-y. GA wybiera dokładnie 10 z 15 spółek, po 1-20% portfela na każdą. Każdy ETF ma co najmniej 1%.
+- Markowitz ma te same limity, ale może użyć dowolnej liczby spółek. Portfel 1/N dzieli obie części po równo.
+- Dodaliśmy tygodniowy bootstrap blokowy dla horyzontu 26 tygodni. Główna wersja używa bloków czterotygodniowych, a raport sprawdza też bloki dwu- i ośmiotygodniowe.
+- Test kroczący korzysta ze 104 tygodni treningu i 26 tygodni oceny. Wagi są liczone ponownie co pół roku.
+- Program sprawdza także wszystkie 3003 składy po 10 spółek. Wagi w każdym składzie wyznacza Markowitz, więc nie jest to pełne przeszukanie wszystkich możliwych wag.
+- Uruchomiliśmy test przy limicie ryzyka 22% i sprawdziliśmy wagi oraz wyniki GA, Markowitza i 1/N.
+- Poprawiliśmy README, dokumentację i karty projektu oraz usunęliśmy stare instrukcje i moduły.
 
 Wyniki wstępne:
-- Pięcioletni test kroczący przy limicie 22% obejmował 10 okresów półrocznych. Łączny zwrot historyczny: GA 204,83%, Markowitz 319,40%, 1/N 177,29%; każda metoda miała 9 dodatnich okresów z 10.
+- Pięcioletni test kroczący przy limicie 22% obejmował 10 okresów półrocznych. Po końcowym audycie i odtworzeniu danych łączny zwrot historyczny wyniósł: GA 199,71%, Markowitz 319,40%, 1/N 177,29%; każda metoda miała 9 dodatnich okresów z 10.
 - Wyniki nie uwzględniają kosztów transakcyjnych ani rebalansowania i nie dowodzą przewagi żadnej metody.
-- W osobnym dwuletnim oknie treningowym wszystkie 3003 zestawy były wykonalne; najlepszy uzyskał 98,93% oszacowanego prawdopodobieństwa dodatniego zwrotu w 6 miesięcy. To wynik in-sample, zależny od założeń i liczby ścieżek bootstrapu.
+- W osobnym dwuletnim oknie treningowym wszystkie 3003 zestawy były wykonalne; po końcowym odtworzeniu danych najlepszy uzyskał 98,96% oszacowanego prawdopodobieństwa dodatniego zwrotu w 6 miesięcy. To wynik in-sample, zależny od założeń i liczby ścieżek bootstrapu.
 
 Użycie narzędzi AI:
 - Wcześniejsze prace zespołu odnotowywały użycie ChatGPT. Bieżące zmiany kodu i dokumentacji przygotowano z pomocą Codex na polecenie Nikodema Bonieckiego.
@@ -37,3 +37,26 @@ Użycie narzędzi AI:
 Do zrobienia:
 - Rozważyć przeliczenie kwoty inwestycji USD na liczbę możliwych do kupienia jednostek z uwzględnieniem ograniczeń rynku.
 - Opcjonalnie porównać pełne przeszukanie składów z bezpośrednią optymalizacją bootstrapowego prawdopodobieństwa w obrębie każdego składu.
+
+=== Sprint 21.11.2026 ===
+
+Zrealizowane:
+- Audyt sprawdza teraz symbole, waluty, typy instrumentów, strefy giełd i kierunek obu par FX.
+- Raport obejmuje dywidendy, splity, relację Close/Adj Close, wiek kursu FX i faktyczną datę każdej ceny tygodniowej.
+- Stałe okno `--start/--end` pozwala odtworzyć zbiór. Manifest zapisuje wersje środowiska, parametry, schematy i sumy SHA-256. Kalendarz ma osobny raport.
+- Naprawiliśmy błąd yfinance, przez który przy wspólnym pobieraniu brakowało ostatniej sesji europejskich giełd. Po poprawce wszystkie serie kończą się 20.11.2026.
+- Końcowy zbiór ma 1703 wspólne sesje dzienne i 366 kolejnych cen tygodniowych. Nie ma luk, duplikatów, pustych ani niedodatnich cen. Wszystkie kursy FX pochodzą z tego samego dnia.
+- Napisaliśmy 9 testów audytu i wszystkie przechodzą.
+- Powtórzyliśmy porównanie in-sample i pełny pięcioletni test walk-forward. Budżety 80/20, wybór 10 spółek przez GA, limity wag i 30 wyników cząstkowych zgadzają się z podsumowaniem.
+- Sprawdziliśmy ponownie wszystkie 3003 składy po 10 spółek. Każdy był wykonalny, a najlepszy uzyskał 98,96% szacowanego P(+6 miesięcy).
+- Porównaliśmy instrukcje CLI z `--help` i poprawiliśmy README, dokumentację, karty projektu, abstrakt oraz ten raport.
+
+Wyniki końcowego przebiegu walk-forward przy limicie 22%:
+- GA: 199,71% łącznego zwrotu, 9/10 dodatnich okresów, 19,35% zrealizowanej zmienności.
+- Markowitz: 319,40% łącznego zwrotu, 9/10 dodatnich okresów, 21,44% zrealizowanej zmienności.
+- 1/N: 177,29% łącznego zwrotu, 9/10 dodatnich okresów, 19,94% zrealizowanej zmienności.
+- Wyniki są historyczne, obejmują tylko 10 okresów półrocznych i nie uwzględniają prowizji, podatków ani kosztów rebalansowania.
+
+Do zrobienia:
+- Przeliczenie kwoty inwestycji USD na możliwe do kupienia jednostki aktywów z uwzględnieniem zasad rynku i reszty gotówkowej.
+- Opcjonalne dodanie kosztów transakcyjnych do testu kroczącego i analiza stabilności wyników dla innych okien treningowych.
